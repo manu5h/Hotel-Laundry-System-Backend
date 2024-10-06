@@ -19,8 +19,6 @@ CREATE TABLE IF NOT EXISTS laundry (
 db.query(laundry, (err, result) => {
   if (err) {
     console.error("Error creating laundry table: ", err);
-  } else {
-    console.log("laundry table created or already exists.");
   }
 });
 }

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 // Import the table creation scripts
 const createLaundryTable = require("./models/laundry_model");
 const createHotelTable = require("./models/hotel_model");
+const createDeliveryRidersTable = require("./models/delivery_riders_model");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.use(express.json());
 // Execute table creation queries
 createHotelTable();
 createLaundryTable();
+createDeliveryRidersTable();
 
 
 // ROUTES

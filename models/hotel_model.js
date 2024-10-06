@@ -19,8 +19,6 @@ CREATE TABLE IF NOT EXISTS hotel (
 db.query(hotel, (err, result) => {
   if (err) {
     console.error("Error creating hotel table: ", err);
-  } else {
-    console.log("hotel table created or already exists.");
   }
 });
 }
