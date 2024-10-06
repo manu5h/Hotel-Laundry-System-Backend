@@ -6,6 +6,7 @@ const { registerHotel, registerLaundry, registerDeliveryRider } = require('../co
 const { loginHotel, loginLaundry, loginDeliveryRiders } = require('../controllers/auth/loginController');
 const { updateHotel, updateLaundry } = require('../controllers/auth/updateProfileControler');
 const { changePassword_hotel, changePassword_laundry } = require('../controllers/auth/changePasswordController');
+const { deleteAccount_hotel, deleteAccount_laundry, deleteAccount_delivery } = require('../controllers/auth/deleteAccountController');
 
 const authenticateToken = require('../middleware/auth');
 
@@ -40,5 +41,13 @@ router.put('/changePassword/hotel', changePassword_hotel);
 // Route for update Laundry information
 router.put('/changePassword/laundry', changePassword_laundry); 
 
+// Route for delete hotel
+router.delete('/delete/hotel', deleteAccount_hotel);
+
+// Route for delete laundry
+router.delete('/delete/laundry', deleteAccount_laundry);
+
+// Route for delete delivery
+router.delete('/delete/delivery', deleteAccount_delivery);
 
 module.exports = router;

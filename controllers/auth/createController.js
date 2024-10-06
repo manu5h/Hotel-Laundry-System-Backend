@@ -93,9 +93,9 @@ const registerDeliveryRider = (req, res) => {
     if (err) {
       return res
         .status(500)
-        .json({ message: "Error registering laundry", error: err.message });
+        .json({ message: "Error registering delivery rider", error: err.message });
     }
-    return res.status(201).json({ message: "Laundry registered successfully" });
+    return res.status(201).json({ message: "delivery rider registered successfully" });
   });
 };
 
