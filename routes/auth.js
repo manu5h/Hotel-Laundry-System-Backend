@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { registerHotel, registerLaundry } = require('../controllers/auth/registerController');
 const { loginHotel, loginLaundry } = require('../controllers/auth/loginController');
+const authenticateToken = require('../middleware/auth');
 
 // Route for hotel registration
 router.post('/register/hotel', registerHotel); 

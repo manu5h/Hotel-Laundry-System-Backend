@@ -1,5 +1,9 @@
 const db = require('../../config/db');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET; 
+
 
 const loginHotel = (req, res) => {
     const { email, password } = req.body; 
@@ -28,8 +32,9 @@ const loginHotel = (req, res) => {
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
 
-            // If the password matches, return success message or token
-            return res.status(200).json({ message: 'Login successful', hotel });
+            const token = jwt.sign({ id: hotel.id, email: hotel.email }, JWT_SECRET, { expiresIn: '1h' });
+
+            return res.status(200).json({ message: 'Login successful', token });
         });
     });
 };
@@ -61,8 +66,9 @@ const loginLaundry = (req, res) => {
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
 
-            // If the password matches, return success message or token
-            return res.status(200).json({ message: 'Login successful', laundry });
+            const token = jwt.sign({ id: laundry.id, email: laundry.email }, JWT_SECRET, { expiresIn: '1h' });
+
+            return res.status(200).json({ message: 'Login successful', token });
         });
     });
 };
