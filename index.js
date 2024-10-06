@@ -1,8 +1,11 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const clothinItemRoutes = require('./routes/management/clothingItemRoute');
+const orderRoutes = require('./routes/management/orderRoute');
 
 // Import the table creation scripts
 const createLaundryTable = require("./models/laundry_model");
@@ -17,6 +20,10 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+
+console.log('JWT Secret:', process.env.JWT_SECRET); // Add this line to debug`
+
 
 // Execute table creation queries
 createHotelTable();
@@ -35,6 +42,8 @@ app.get("/", (req, res) => {
 
 // Authentication routes
 app.use("/auth", authRoutes); 
+app.use("/item",clothinItemRoutes);
+app.use("/order",orderRoutes);
 
 // Start server
 app.listen(PORT, () => {

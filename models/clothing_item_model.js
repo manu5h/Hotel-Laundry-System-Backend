@@ -5,9 +5,10 @@ function createClothingItemTable() {
   const clothingitems = `
   CREATE TABLE IF NOT EXISTS clothingItems (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    itemStatus INT NOT NULL,
     category VARCHAR(255) NOT NULL,
     cleaningType VARCHAR(255) NOT NULL,
-    pressigng_ironing BOOL NOT NULL,
+    pressing_ironing BOOL NOT NULL,
     stain_removal BOOL NOT NULL,
     folding BOOL NOT NULL,
     special_instructions VARCHAR(255),
