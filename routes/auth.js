@@ -2,9 +2,11 @@
 const express = require('express');
 const router = express.Router();
 
-const { registerHotel, registerLaundry, registerDeliveryRider } = require('../controllers/auth/registerController');
+const { registerHotel, registerLaundry, registerDeliveryRider } = require('../controllers/auth/createController');
 const { loginHotel, loginLaundry, loginDeliveryRiders } = require('../controllers/auth/loginController');
 const { updateHotel, updateLaundry } = require('../controllers/auth/updateProfileControler');
+const { changePassword_hotel, changePassword_laundry } = require('../controllers/auth/changePasswordController');
+
 const authenticateToken = require('../middleware/auth');
 
 
@@ -29,8 +31,14 @@ router.post('/login/deliveryRider', loginDeliveryRiders);
 // Route for update hotel information
 router.put('/update/hotel', updateHotel); 
 
+// Route for update hotel information
+router.put('/update/laundry', updateLaundry);
+
 // Route for update Laundry information
-router.put('/update/laundry', updateLaundry); 
+router.put('/changePassword/hotel', changePassword_hotel); 
+
+// Route for update Laundry information
+router.put('/changePassword/laundry', changePassword_laundry); 
 
 
 module.exports = router;
