@@ -1,9 +1,12 @@
 // routes/auth.js
 const express = require('express');
 const router = express.Router();
+
 const { registerHotel, registerLaundry, registerDeliveryRider } = require('../controllers/auth/registerController');
 const { loginHotel, loginLaundry, loginDeliveryRiders } = require('../controllers/auth/loginController');
 const { updateHotel, updateLaundry } = require('../controllers/auth/updateProfileControler');
+const authenticateToken = require('../middleware/auth');
+
 
 // Route for hotel registration
 router.post('/register/hotel', registerHotel); 
