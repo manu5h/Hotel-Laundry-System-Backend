@@ -1,13 +1,18 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const clothinItemRoutes = require('./routes/management/clothingItemRoute');
+const orderRoutes = require('./routes/management/orderRoute');
 
 // Import the table creation scripts
 const createLaundryTable = require("./models/laundry_model");
 const createHotelTable = require("./models/hotel_model");
 const createDeliveryRidersTable = require("./models/delivery_riders_model");
+const createOrderTable = require("./models/order_model");
+const createClothingItemTable = require("./models/clothing_item_model");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,10 +21,16 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+console.log('JWT Secret:', process.env.JWT_SECRET); // Add this line to debug`
+
+
 // Execute table creation queries
 createHotelTable();
 createLaundryTable();
 createDeliveryRidersTable();
+createOrderTable();
+createClothingItemTable();
 
 
 // ROUTES
@@ -31,6 +42,8 @@ app.get("/", (req, res) => {
 
 // Authentication routes
 app.use("/auth", authRoutes); 
+app.use("/item",clothinItemRoutes);
+app.use("/order",orderRoutes);
 
 // Start server
 app.listen(PORT, () => {
