@@ -73,4 +73,26 @@ const loginLaundry = (req, res) => {
     });
 };
 
-module.exports = { loginHotel, loginLaundry };
+const loginDeliveryRiders = (req, res) => {
+    const { email } = req.body; 
+
+    // Query to get user data based on email
+    const query = 'SELECT * FROM deliveryRiders WHERE email = ?';
+    
+    db.query(query, [email], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database error' });
+        }
+
+        // Check if any user is found
+        if (results.length === 0) {
+            return res.status(401).json({ message: 'Invalid email' });
+        }
+        const deliveryRiders = results[0]; // Get the first user result
+
+        return res.status(200).json({ message: 'Login successful', deliveryRiders });
+
+    });
+};
+
+module.exports = { loginHotel, loginLaundry, loginDeliveryRiders };
