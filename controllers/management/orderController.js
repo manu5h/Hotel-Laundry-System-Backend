@@ -3,6 +3,7 @@ const db = require('../../config/db');
 // Create a new order and assign items to the order
 const createOrder = (req, res) => {
   const { 
+    hotel_id,
     pickupFromHotelDateTime, 
     handedToLaundryDateTime, 
     laundryCompletedDateTime, 
@@ -39,11 +40,12 @@ const createOrder = (req, res) => {
 
     // Query to insert a new order
     const orderQuery = `
-      INSERT INTO orders (orderStatus, pickupFromHotelDateTime, handedToLaundryDateTime, laundryCompletedDateTime, pickupFromLaundryDateTime, orderCompletedDateTime, special_notes) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO orders (hotel_id, orderStatus, pickupFromHotelDateTime, handedToLaundryDateTime, laundryCompletedDateTime, pickupFromLaundryDateTime, orderCompletedDateTime, special_notes) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const orderValues = [
+      hotel_id,
       orderStatus,
       pickupFromHotelDateTime || null,
       handedToLaundryDateTime || null,

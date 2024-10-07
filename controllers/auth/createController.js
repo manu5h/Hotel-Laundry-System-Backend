@@ -38,8 +38,18 @@ const registerHotel = (req, res) => {
 
 // Register a laundry
 const registerLaundry = (req, res) => {
-  const { email, password, laundry_name, phone_number, address, nearest_city } =
-    req.body;
+  const {
+    email,
+    password,
+    laundry_name,
+    phone_number,
+    address,
+    nearest_city,
+    bank_name,
+    bank_account_number,
+    bank_account_holder_name,
+    bank_branch,
+  } = req.body;
 
   // Hash the password before saving it
   const saltRounds = 10;
@@ -48,9 +58,11 @@ const registerLaundry = (req, res) => {
       return res.status(500).json({ message: "Error hashing password" });
     }
 
-    // SQL query
-    const query =
-      "INSERT INTO laundry (email, password, laundry_name, phone_number, address, nearest_city) VALUES (?, ?, ?, ?, ?, ?)";
+    // SQL query to insert laundry with bank details
+    const query = `
+      INSERT INTO laundry (email, password, laundry_name, phone_number, address, nearest_city, bank_name, bank_account_number, bank_account_holder_name, bank_branch)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
     const values = [
       email,
       hashedPassword,
@@ -58,13 +70,19 @@ const registerLaundry = (req, res) => {
       phone_number,
       address,
       nearest_city,
+      bank_name,
+      bank_account_number,
+      bank_account_holder_name,
+      bank_branch,
     ];
 
+    // Execute the query
     db.query(query, values, (err, result) => {
       if (err) {
-        return res
-          .status(500)
-          .json({ message: "Error registering laundry", error: err.message });
+        return res.status(500).json({
+          message: "Error registering laundry",
+          error: err.message,
+        });
       }
       return res
         .status(201)
