@@ -16,6 +16,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+console.log('JWT Secret:', process.env.JWT_SECRET); // Add this line to debug`
+
+
 // Execute table creation queries
 createHotelTable();
 createLaundryTable();

@@ -4,7 +4,7 @@ const router = express.Router();
 
 const { registerHotel, registerLaundry, registerDeliveryRider } = require('../controllers/auth/createController');
 const { loginHotel, loginLaundry, loginDeliveryRiders } = require('../controllers/auth/loginController');
-const { updateHotel, updateLaundry } = require('../controllers/auth/updateProfileControler');
+const { updateHotel, updateLaundry, updateDeliveryRider } = require('../controllers/auth/updateProfileControler');
 const { changePassword_hotel, changePassword_laundry } = require('../controllers/auth/changePasswordController');
 const { deleteAccount_hotel, deleteAccount_laundry, deleteAccount_delivery } = require('../controllers/auth/deleteAccountController');
 
@@ -34,6 +34,9 @@ router.put('/update/hotel', updateHotel);
 
 // Route for update hotel information
 router.put('/update/laundry', updateLaundry);
+
+// Route for update delivery rider information
+router.put('/update/deliveryRider', updateDeliveryRider);
 
 // Route for update Laundry information
 router.put('/changePassword/hotel', changePassword_hotel); 
