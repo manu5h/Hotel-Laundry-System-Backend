@@ -10,12 +10,12 @@ const authenticateToken = (req, res, next) => {
         return res.sendStatus(401); // Unauthorized
     }
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
         if (err) {
             return res.sendStatus(403); // Forbidden
         }
 
-        req.user = user; // Add user information to the request
+        req.hotel = decodedToken; // Store the decoded token information in req.hotel
         next();
     });
 };
