@@ -13,7 +13,9 @@ function createClothingItemTable() {
     folding BOOL NOT NULL,
     special_instructions VARCHAR(255),
     order_id INT,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    hotel_id INT NOT NULL,
+    FOREIGN KEY (hotel_id) REFERENCES hotel(id) ON DELETE CASCADE
   );
   `;
 

@@ -51,42 +51,57 @@ const registerLaundry = (req, res) => {
     bank_branch,
   } = req.body;
 
-  // Hash the password before saving it
-  const saltRounds = 10;
-  bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
+  // Input validation
+  if (!email || !password || !laundry_name || !phone_number || !address || !nearest_city || !bank_name || !bank_account_number || !bank_account_holder_name || !bank_branch) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  // Check if the laundry with the same email already exists
+  const checkEmailQuery = `SELECT * FROM laundry WHERE email = ?`;
+  db.query(checkEmailQuery, [email], (err, results) => {
     if (err) {
-      return res.status(500).json({ message: "Error hashing password" });
+      return res.status(500).json({ message: "Error checking email", error: err.message });
     }
 
-    // SQL query to insert laundry with bank details
-    const query = `
-      INSERT INTO laundry (email, password, laundry_name, phone_number, address, nearest_city, bank_name, bank_account_number, bank_account_holder_name, bank_branch)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [
-      email,
-      hashedPassword,
-      laundry_name,
-      phone_number,
-      address,
-      nearest_city,
-      bank_name,
-      bank_account_number,
-      bank_account_holder_name,
-      bank_branch,
-    ];
+    if (results.length > 0) {
+      return res.status(400).json({ message: "Laundry with this email already exists." });
+    }
 
-    // Execute the query
-    db.query(query, values, (err, result) => {
+    // Hash the password before saving it
+    const saltRounds = 10;
+    bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
       if (err) {
-        return res.status(500).json({
-          message: "Error registering laundry",
-          error: err.message,
-        });
+        return res.status(500).json({ message: "Error hashing password" });
       }
-      return res
-        .status(201)
-        .json({ message: "Laundry registered successfully" });
+
+      // SQL query to insert laundry with bank details
+      const query = `
+        INSERT INTO laundry (email, password, laundry_name, phone_number, address, nearest_city, bank_name, bank_account_number, bank_account_holder_name, bank_branch)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      const values = [
+        email,
+        hashedPassword,
+        laundry_name,
+        phone_number,
+        address,
+        nearest_city,
+        bank_name,
+        bank_account_number,
+        bank_account_holder_name,
+        bank_branch,
+      ];
+
+      // Execute the query
+      db.query(query, values, (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            message: "Error registering laundry",
+            error: err.code === 'ER_DUP_ENTRY' ? 'Email already exists.' : err.message,
+          });
+        }
+        return res.status(201).json({ message: "Laundry registered successfully" });
+      });
     });
   });
 };
