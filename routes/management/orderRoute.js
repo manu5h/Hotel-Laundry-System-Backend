@@ -8,7 +8,9 @@ const {
     acceptOrderByLaundry, 
     acceptOrderByHotel,
     setDeliveryRider,
-    pickupOrderByRider
+    pickupOrderByRider,
+    handedToLaundryByRider,
+    laundryCompleted
 } = require('../../controllers/management/orderController');
 const authenticateToken = require('../../middleware/auth');
 
@@ -26,6 +28,9 @@ router.post('/hotel/accept',authenticateToken, acceptOrderByHotel)
 
 router.post('/laundry/pickupRider',authenticateToken, setDeliveryRider)
 
-router.post('/rider/pickup',authenticateToken, pickupOrderByRider)
+router.post('/rider/hotel/pickup',authenticateToken, pickupOrderByRider)
 
+router.post('/rider/laundry/drop',authenticateToken, handedToLaundryByRider)
+
+router.post('/laundry/completed',authenticateToken, laundryCompleted)
 module.exports = router;
