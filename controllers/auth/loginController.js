@@ -90,7 +90,9 @@ const loginDeliveryRiders = (req, res) => {
         }
         const deliveryRiders = results[0]; // Get the first user result
 
-        return res.status(200).json({ message: 'Login successful', deliveryRiders });
+        const token = jwt.sign({ id: deliveryRiders.id, email: deliveryRiders.email }, JWT_SECRET, { expiresIn: '1h' });
+
+        return res.status(200).json({ message: 'Login successful', token });
 
     });
 };
