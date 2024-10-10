@@ -7,6 +7,7 @@ const { loginHotel, loginLaundry, loginDeliveryRiders } = require('../controller
 const { updateHotel, updateLaundry, updateDeliveryRider } = require('../controllers/auth/updateProfileControler');
 const { changePassword_hotel, changePassword_laundry } = require('../controllers/auth/changePasswordController');
 const { deleteAccount_hotel, deleteAccount_laundry, deleteAccount_delivery } = require('../controllers/auth/deleteAccountController');
+const { sendOtp, verifyOtp } = require('../controllers/auth/otpController');
 
 const authenticateToken = require('../middleware/auth');
 
@@ -52,5 +53,11 @@ router.delete('/delete/laundry', deleteAccount_laundry);
 
 // Route for delete delivery
 router.delete('/delete/delivery', deleteAccount_delivery);
+
+//send otp
+router.post('/send-otp', sendOtp);
+
+//veridy otp
+router.post('/verify-otp', verifyOtp);
 
 module.exports = router;

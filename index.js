@@ -13,6 +13,7 @@ const createHotelTable = require("./models/hotel_model");
 const createDeliveryRidersTable = require("./models/delivery_riders_model");
 const createOrderTable = require("./models/order_model");
 const createClothingItemTable = require("./models/clothing_item_model");
+const createOTPTable = require("./models/OTP_model")
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -31,6 +32,7 @@ createLaundryTable();
 createDeliveryRidersTable();
 createOrderTable();
 createClothingItemTable();
+createOTPTable();
 
 
 // ROUTES
