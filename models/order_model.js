@@ -13,6 +13,7 @@ function createOrderTable() {
     pickupFromLaundryDateTime DATETIME,
     orderCompletedDateTime DATETIME,
     special_notes VARCHAR(255),
+    price DOUBLE,
     hotel_id INT NOT NULL,
     FOREIGN KEY (hotel_id) REFERENCES hotel(id) ON DELETE CASCADE,
     laundry_id INT,

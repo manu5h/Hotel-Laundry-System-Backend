@@ -15,7 +15,7 @@ const authenticateToken = (req, res, next) => {
             return res.sendStatus(403); // Forbidden
         }
 
-        req.hotel = decodedToken; // Store the decoded token information in req.hotel
+        req.user = decodedToken; // Store the decoded token information in req.hotel
         next();
     });
 };

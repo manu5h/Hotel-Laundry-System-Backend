@@ -42,7 +42,7 @@ const getClothingItemsByHotelId = (req, res) => {
   const { hotel_id } = req.params;
 
   // Ensure that the hotel_id from the JWT matches the hotel_id being requested
-  if (req.hotel.id !== parseInt(hotel_id, 10)) {
+  if (req.user.id !== parseInt(hotel_id, 10)) {
       return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 

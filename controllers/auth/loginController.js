@@ -32,7 +32,7 @@ const loginHotel = (req, res) => {
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
 
-            const token = jwt.sign({ id: hotel.id, email: hotel.email }, JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ id: hotel.id, email: hotel.email }, JWT_SECRET, { expiresIn: '6h' });
 
             return res.status(200).json({ message: 'Login successful', token });
         });
@@ -66,7 +66,7 @@ const loginLaundry = (req, res) => {
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
 
-            const token = jwt.sign({ id: laundry.id, email: laundry.email }, JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ id: laundry.id, email: laundry.email }, JWT_SECRET, { expiresIn: '6h' });
 
             return res.status(200).json({ message: 'Login successful', token });
         });
@@ -90,7 +90,9 @@ const loginDeliveryRiders = (req, res) => {
         }
         const deliveryRiders = results[0]; // Get the first user result
 
-        return res.status(200).json({ message: 'Login successful', deliveryRiders });
+        const token = jwt.sign({ id: deliveryRiders.id, email: deliveryRiders.email }, JWT_SECRET, { expiresIn: '6h' });
+
+        return res.status(200).json({ message: 'Login successful', token });
 
     });
 };
