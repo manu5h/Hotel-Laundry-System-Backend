@@ -9,6 +9,7 @@ const { changePassword_hotel, changePassword_laundry } = require('../controllers
 const {resetPassword_hotel, resetPassword_laundry} = require('../controllers/auth/resetPasswordController');
 const { deleteAccount_hotel, deleteAccount_laundry, deleteAccount_delivery } = require('../controllers/auth/deleteAccountController');
 const { sendOtp, verifyOtp } = require('../controllers/auth/otpController');
+const { checkEmail } = require('../controllers/auth/checkEmail');
 
 const authenticateToken = require('../middleware/auth');
 
@@ -66,5 +67,8 @@ router.post('/send-otp', sendOtp);
 
 //veridy otp
 router.post('/verify-otp', verifyOtp);
+
+//check email
+router.post('/check-email', checkEmail);
 
 module.exports = router;
