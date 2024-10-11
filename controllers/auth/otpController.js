@@ -48,7 +48,6 @@ const deleteExpiredOTPs = () => {
         console.error('Error deleting expired OTPs:', err);
         return reject(err);
       }
-      console.log('Expired OTPs deleted:', result.affectedRows);
       resolve(result);
     });
   });
