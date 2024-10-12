@@ -283,7 +283,7 @@ const acceptOrderByHotel = (req, res) => {
   });
 };
 
-const setDeliveryRider = (req, res) => {
+const setPickupDeliveryRider = (req, res) => {
   const { orderId, pickupDeliveryRiderId } = req.body;
 
   // Ensure that the laundry_id from the JWT exists
@@ -345,7 +345,7 @@ const setDeliveryRider = (req, res) => {
   });
 };
 
-const pickupOrderByRider = (req, res) => {
+const pickupOrderFromHotel = (req, res) => {
   const { orderId, pickupTime } = req.body;
 
   // Ensure that the rider_id from the JWT exists
@@ -552,6 +552,136 @@ const laundryCompleted = (req, res) => {
   });
 };
 
+const setDropDeliveryRider = (req, res) => {
+  const { orderId, dropDeliveryRiderId } = req.body;
+
+  // Ensure that the laundry_id from the JWT exists
+  if (!req.user.id) {
+    return res.status(403).json({ message: 'Laundry ID not found in JWT.' });
+  }
+
+  // Validate that orderId and deliveryRiderId are provided
+  if (!orderId || !dropDeliveryRiderId) {
+    return res.status(400).json({ message: 'Order ID and Delivery Rider ID are required.' });
+  }
+
+  // Query to check the current status of the order and ensure it belongs to the laundry
+  const checkOrderStatusQuery = `
+    SELECT orderStatus, laundry_id FROM orders 
+    WHERE id = ?
+  `;
+
+  db.query(checkOrderStatusQuery, [orderId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error checking order status', error: err });
+    }
+
+    // Check if the order exists
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Order not found.' });
+    }
+
+    const order = results[0];
+
+    // Ensure that the order belongs to the current laundry
+    if (order.laundry_id !== req.user.id) {
+      return res.status(403).json({ message: 'You do not have permission to assign a delivery rider to this order.' });
+    }
+
+    // Ensure that the order is in the correct status to assign a delivery rider (e.g., status 2)
+    if (order.orderStatus !== 6) {
+      return res.status(400).json({ message: 'Only orders with status 6 can have a delivery rider assigned.' });
+    }
+
+    // Query to update the order with the delivery rider ID
+    const updateOrderQuery = `
+      UPDATE orders 
+      SET drop_delivery_rider_id = ? 
+      WHERE id = ?
+    `;
+
+    db.query(updateOrderQuery, [dropDeliveryRiderId, orderId], (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error updating order', error: err });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Failed to update order. Order may not exist.' });
+      }
+
+      res.status(200).json({ message: 'Delivery rider assigned successfully.', orderId, dropDeliveryRiderId });
+    });
+  });
+};
+
+const pickupOrderFromLaundry = (req, res) => {
+  const { orderId, pickupTime } = req.body;
+
+  // Ensure that the rider_id from the JWT exists
+  if (!req.user.id) {
+    return res.status(403).json({ message: 'Rider ID not found in JWT.' });
+  }
+
+  // Validate that orderId and pickupTime are provided
+  if (!orderId || !pickupTime) {
+    return res.status(400).json({ message: 'Order ID and pickup time are required.' });
+  }
+
+  // Format the pickupTime using the helper
+  const formattedPickupTime = formatDateForMySQL(pickupTime);
+
+  // Query to check the current status of the order and ensure the deliveryRiderId matches the rider_id
+  const checkOrderStatusQuery = `
+    SELECT orderStatus, drop_delivery_rider_id FROM orders 
+    WHERE id = ?
+  `;
+
+  db.query(checkOrderStatusQuery, [orderId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error checking order status', error: err });
+    }
+
+    // Check if the order exists
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Order not found.' });
+    }
+
+    const order = results[0];
+
+    // Ensure the delivery rider matches the one assigned to the order
+    if (order.drop_delivery_rider_id !== req.user.id) {
+      return res.status(403).json({ message: 'You do not have permission to pick up this order.' });
+    }
+
+    // Ensure that the order is in status 3 (accepted by hotel)
+    if (order.orderStatus !== 6) {
+      return res.status(400).json({ message: 'Only orders with status 6 can be picked up by a rider.' });
+    }
+
+    // Query to update the order status to 4 and set the pickup time
+    const updateOrderQuery = `
+      UPDATE orders 
+      SET orderStatus = 7, pickupFromLaundryDateTime = ? 
+      WHERE id = ?
+    `;
+
+    db.query(updateOrderQuery, [formattedPickupTime, orderId], (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error updating order', error: err });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Failed to update order. Order may not exist.' });
+      }
+
+      res.status(200).json({ 
+        message: 'Order picked up successfully by rider.', 
+        orderId, 
+        pickupTime: formattedPickupTime 
+      });
+    });
+  });
+};
 
 
 
@@ -564,8 +694,10 @@ module.exports = {
   requestOrderToLaundry,
   acceptOrderByLaundry, 
   acceptOrderByHotel, 
-  setDeliveryRider,
-  pickupOrderByRider,
+  setPickupDeliveryRider,
+  pickupOrderFromHotel,
   handedToLaundryByRider,
-  laundryCompleted
+  laundryCompleted,
+  setDropDeliveryRider,
+  pickupOrderFromLaundry
 };
