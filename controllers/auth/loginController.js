@@ -21,10 +21,10 @@ const loginHotel = (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        const hotel = results[0]; // Get the first user result
+        const result = results[0]; // Get the first user result
 
         // Compare the provided password with the hashed password in the database
-        bcrypt.compare(password, hotel.password, (err, isMatch) => {
+        bcrypt.compare(password, result.password, (err, isMatch) => {
             if (err) {
                 return res.status(500).json({ message: 'Error comparing passwords' });
             }
@@ -32,9 +32,9 @@ const loginHotel = (req, res) => {
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
 
-            const token = jwt.sign({ id: hotel.id, email: hotel.email }, JWT_SECRET, { expiresIn: '6h' });
+            const token = jwt.sign({ id: result.id, email: result.email }, JWT_SECRET, { expiresIn: '6h' });
 
-            return res.status(200).json({ message: 'Login successful', token });
+            return res.status(200).json({ message: 'Login successful', token, result });
         });
     });
 };
@@ -55,10 +55,10 @@ const loginLaundry = (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        const laundry = results[0]; // Get the first user result
+        const result = results[0]; // Get the first user result
 
         // Compare the provided password with the hashed password in the database
-        bcrypt.compare(password, laundry.password, (err, isMatch) => {
+        bcrypt.compare(password, result.password, (err, isMatch) => {
             if (err) {
                 return res.status(500).json({ message: 'Error comparing passwords' });
             }
@@ -66,9 +66,9 @@ const loginLaundry = (req, res) => {
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
 
-            const token = jwt.sign({ id: laundry.id, email: laundry.email }, JWT_SECRET, { expiresIn: '6h' });
+            const token = jwt.sign({ id: result.id, email: result.email }, JWT_SECRET, { expiresIn: '6h' });
 
-            return res.status(200).json({ message: 'Login successful', token });
+            return res.status(200).json({ message: 'Login successful', token, result });
         });
     });
 };
@@ -88,11 +88,11 @@ const loginDeliveryRiders = (req, res) => {
         if (results.length === 0) {
             return res.status(401).json({ message: 'Invalid email' });
         }
-        const deliveryRiders = results[0]; // Get the first user result
+        const result = results[0]; // Get the first user result
 
-        const token = jwt.sign({ id: deliveryRiders.id, email: deliveryRiders.email }, JWT_SECRET, { expiresIn: '6h' });
+        const token = jwt.sign({ id: result.id, email: result.email }, JWT_SECRET, { expiresIn: '6h' });
 
-        return res.status(200).json({ message: 'Login successful', token });
+        return res.status(200).json({ message: 'Login successful', token, result });
 
     });
 };
