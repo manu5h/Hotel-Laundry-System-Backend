@@ -1,4 +1,4 @@
-const db = require('../config/db'); // Your database connection
+const db = require('../config/db');
 
 // Create the Users table if it doesn't exist
 

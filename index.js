@@ -6,6 +6,7 @@ const cors = require("cors");
 const authRoutes = require('./routes/auth');
 const clothinItemRoutes = require('./routes/management/clothingItemRoute');
 const orderRoutes = require('./routes/management/orderRoute');
+const hotelRoutes = require('./routes/management/hotelRoute');
 
 // Import the table creation scripts
 const createLaundryTable = require("./models/laundry_model");
@@ -46,6 +47,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes); 
 app.use("/item",clothinItemRoutes);
 app.use("/order",orderRoutes);
+app.use("/hotel",hotelRoutes);
 
 // Start server
 app.listen(PORT, () => {
