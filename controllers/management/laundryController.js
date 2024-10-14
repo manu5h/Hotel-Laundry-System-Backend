@@ -31,7 +31,7 @@ const getLaundryDetailsById = (req, res) => {
     // Return the hotel details
     res.status(200).json({
       message: 'Laundry details retrieved successfully',
-      hotel: results[0]
+      laundry: results[0]
     });
   });
 };

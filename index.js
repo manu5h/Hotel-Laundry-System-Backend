@@ -8,6 +8,7 @@ const clothinItemRoutes = require('./routes/management/clothingItemRoute');
 const orderRoutes = require('./routes/management/orderRoute');
 const hotelRoutes = require('./routes/management/hotelRoute');
 const laundryRoutes = require('./routes/management/laundryRoute');
+const riderRoutes = require('./routes/management/riderRoute');
 
 // Import the table creation scripts
 const createLaundryTable = require("./models/laundry_model");
@@ -50,6 +51,7 @@ app.use("/item",clothinItemRoutes);
 app.use("/order",orderRoutes);
 app.use("/hotel",hotelRoutes);
 app.use("/laundry",laundryRoutes);
+app.use("/rider",riderRoutes);
 
 // Start server
 app.listen(PORT, () => {
