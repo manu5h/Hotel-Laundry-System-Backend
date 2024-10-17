@@ -82,34 +82,6 @@ const createOrder = (req, res) => {
   });
 };
 
-
-const getOrdersByHotelId = (req, res) => {
-  const { hotel_id } = req.params;
-
-  // Ensure that the hotel_id from the JWT matches the hotel_id being requested
-  if (req.user.id !== parseInt(hotel_id, 10)) {
-      return res.status(403).json({ message: 'You do not have permission to access this resource' });
-  }
-
-  // Query to fetch all clothing items by hotel_id
-  const query = `
-      SELECT * FROM orders 
-      WHERE hotel_id = ?
-  `;
-
-  db.query(query, [hotel_id], (err, results) => {
-      if (err) {
-          return res.status(500).json({ message: 'Error fetching orders', error: err });
-      }
-
-      if (results.length === 0) {
-          return res.status(404).json({ message: 'No orders found for this hotel' });
-      }
-
-      res.status(200).json({ clothingItems: results });
-  });
-};
-
 const requestOrderToLaundry = (req, res) => {
   const { orderId, laundry_id} = req.body;
 
@@ -758,8 +730,7 @@ const completeOrder = (req, res) => {
 
 
 module.exports = { 
-  createOrder ,
-  getOrdersByHotelId , 
+  createOrder , 
   requestOrderToLaundry,
   acceptOrderByLaundry, 
   acceptOrderByHotel, 
