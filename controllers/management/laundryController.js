@@ -3,10 +3,10 @@ const db = require('../../config/db'); // Your database connection
 // Method to get hotel details by ID
 const getLaundryDetailsById = (req, res) => {
   const laundryId = parseInt(req.params.laundry_id, 10); 
-  const jwtHotelId = parseInt(req.user.id, 10); 
+  const jwtLaundryId = parseInt(req.user.id, 10); 
   
   // Compare JWT ID and hotel ID
-  if (jwtHotelId !== laundryId) {
+  if (jwtLaundryId !== laundryId) {
     return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 
@@ -36,4 +36,34 @@ const getLaundryDetailsById = (req, res) => {
   });
 };
 
-module.exports = { getLaundryDetailsById };
+const declineOrderByLaundry = (req, res) => {
+  const { order_id, laundry_id } = req.params; // Assuming both order_id and laundry_id are passed as URL parameters
+  const jwtLaundryId = parseInt(req.user.id, 10); 
+  
+  if (jwtLaundryId !== parseInt(laundry_id,10)) {
+    return res.status(403).json({ message: 'You do not have permission to access this resource' });
+  }
+
+  const query = `
+    UPDATE orders 
+    SET laundry_id = NULL, orderStatus = 0 
+    WHERE id = ? AND orderStatus = 1 AND laundry_id = ?
+  `;
+
+  // Execute the query
+  db.query(query, [order_id, laundry_id], (err, result) => {
+    if (err) {
+      console.error("Error declining the order: ", err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Order not found or not assigned to this laundry or status not in 1' });
+    }
+
+    return res.status(200).json({ message: 'Order successfully declined' });
+  });
+};
+
+
+module.exports = { getLaundryDetailsById , declineOrderByLaundry};

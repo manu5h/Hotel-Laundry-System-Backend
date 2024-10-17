@@ -36,4 +36,33 @@ const getHotelDetailsById = (req, res) => {
   });
 };
 
-module.exports = { getHotelDetailsById };
+const declineOrderByHotel = (req, res) => {
+  const { order_id, hotel_id } = req.params; // Assuming both order_id and laundry_id are passed as URL parameters
+  const jwtHotelId = parseInt(req.user.id, 10); 
+  
+  if (jwtHotelId !== parseInt(hotel_id,10)) {
+    return res.status(403).json({ message: 'You do not have permission to access this resource' });
+  }
+
+  const query = `
+    UPDATE orders 
+    SET laundry_id = NULL, orderStatus = 0 
+    WHERE id = ? AND orderStatus = 2 AND hotel_id = ?
+  `;
+
+  // Execute the query
+  db.query(query, [order_id, hotel_id], (err, result) => {
+    if (err) {
+      console.error("Error declining the order: ", err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Order not found or not assigned to this hotel or status not in 2' });
+    }
+
+    return res.status(200).json({ message: 'Order successfully declined' });
+  });
+};
+
+module.exports = { getHotelDetailsById, declineOrderByHotel };
