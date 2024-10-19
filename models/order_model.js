@@ -12,6 +12,7 @@ function createOrderTable() {
     laundryCompletedDateTime DATETIME,
     pickupFromLaundryDateTime DATETIME,
     orderCompletedDateTime DATETIME,
+    weight DOUBLE,
     special_notes VARCHAR(255),
     price DOUBLE,
     hotel_id INT NOT NULL,
