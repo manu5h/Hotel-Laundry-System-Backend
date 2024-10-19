@@ -36,6 +36,33 @@ const getLaundryDetailsById = (req, res) => {
   });
 };
 
+const getOrdersByLaundryId = (req, res) => {
+  const { laundry_id } = req.params;
+
+  // Ensure that the hotel_id from the JWT matches the hotel_id being requested
+  if (req.user.id !== parseInt(laundry_id, 10)) {
+      return res.status(403).json({ message: 'You do not have permission to access this resource' });
+  }
+
+  // Query to fetch all clothing items by hotel_id
+  const query = `
+      SELECT * FROM orders 
+      WHERE laundry_id = ?
+  `;
+
+  db.query(query, [laundry_id], (err, results) => {
+      if (err) {
+          return res.status(500).json({ message: 'Error fetching orders', error: err });
+      }
+
+      if (results.length === 0) {
+          return res.status(404).json({ message: 'No orders found for this hotel' });
+      }
+
+      res.status(200).json({ orders: results });
+  });
+};
+
 const declineOrderByLaundry = (req, res) => {
   const { order_id, laundry_id } = req.params; // Assuming both order_id and laundry_id are passed as URL parameters
   const jwtLaundryId = parseInt(req.user.id, 10); 
@@ -66,4 +93,4 @@ const declineOrderByLaundry = (req, res) => {
 };
 
 
-module.exports = { getLaundryDetailsById , declineOrderByLaundry};
+module.exports = { getLaundryDetailsById ,getOrdersByLaundryId, declineOrderByLaundry};

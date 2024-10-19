@@ -10,6 +10,7 @@ const createOrder = (req, res) => {
     laundryCompletedDateTime, 
     pickupFromLaundryDateTime, 
     orderCompletedDateTime, 
+    weight,
     special_notes, 
     itemIds 
   } = req.body;
@@ -39,10 +40,10 @@ const createOrder = (req, res) => {
       return res.status(400).json({ message: 'All items must have itemStatus of 0 and belong to the specified hotel to be assigned to an order.' });
     }
 
-    // Query to insert a new order
+    // Query to insert a new order (without the price column)
     const orderQuery = `
-      INSERT INTO orders (hotel_id, orderStatus, pickupFromHotelDateTime, handedToLaundryDateTime, laundryCompletedDateTime, pickupFromLaundryDateTime, orderCompletedDateTime, special_notes) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO orders (hotel_id, orderStatus, pickupFromHotelDateTime, handedToLaundryDateTime, laundryCompletedDateTime, pickupFromLaundryDateTime, orderCompletedDateTime, weight, special_notes) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const orderValues = [
@@ -53,6 +54,7 @@ const createOrder = (req, res) => {
       laundryCompletedDateTime || null,
       pickupFromLaundryDateTime || null,
       orderCompletedDateTime || null,
+      weight || null,
       special_notes || null
     ];
 
@@ -81,6 +83,7 @@ const createOrder = (req, res) => {
     });
   });
 };
+
 
 const requestOrderToLaundry = (req, res) => {
   const { orderId, laundry_id} = req.body;
