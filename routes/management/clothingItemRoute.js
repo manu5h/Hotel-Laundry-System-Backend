@@ -5,7 +5,7 @@ const {createClothingItem,getClothingItemsByHotelId } = require('../../controlle
 const authenticateToken = require('../../middleware/auth');
 
 // Route for item Creation
-router.post('/create', createClothingItem);
+router.post('/:hotel_id/create', authenticateToken,createClothingItem);
 
 //Route for get items by hotel id
 router.get('/hotel/:hotel_id', authenticateToken, getClothingItemsByHotelId);

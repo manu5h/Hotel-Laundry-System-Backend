@@ -2,8 +2,8 @@ const db = require('../../config/db');
 
 // Add a new clothing item without an order
 const createClothingItem = (req, res) => {
+  const  {hotel_id} = req.params;
   const { 
-    hotel_id, 
     category, 
     cleaningType, 
     pressing_ironing, 
@@ -11,6 +11,10 @@ const createClothingItem = (req, res) => {
     folding, 
     special_instructions 
   } = req.body;
+
+  if(req.user.id !== parseInt(hotel_id,10)){
+    return res.status(403).json({message: 'You do not have permission to access this resource'});
+  }
 
   // Query to insert a clothing item with the current time for created_time
   const itemQuery = `
