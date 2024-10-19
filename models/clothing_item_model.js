@@ -12,6 +12,7 @@ function createClothingItemTable() {
     stain_removal BOOL NOT NULL,
     folding BOOL NOT NULL,
     special_instructions VARCHAR(255),
+    created_time DATETIME NOT NULL,
     order_id INT,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     hotel_id INT NOT NULL,

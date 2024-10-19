@@ -42,8 +42,8 @@ const createOrder = (req, res) => {
 
     // Query to insert a new order (without the price column)
     const orderQuery = `
-      INSERT INTO orders (hotel_id, orderStatus, pickupFromHotelDateTime, handedToLaundryDateTime, laundryCompletedDateTime, pickupFromLaundryDateTime, orderCompletedDateTime, weight, special_notes) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO orders (hotel_id, orderStatus, pickupFromHotelDateTime, handedToLaundryDateTime, laundryCompletedDateTime, pickupFromLaundryDateTime, orderCompletedDateTime, weight, special_notes,created_time) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,NOW())
     `;
 
     const orderValues = [
