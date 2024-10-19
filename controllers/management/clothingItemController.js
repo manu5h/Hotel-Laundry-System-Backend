@@ -12,11 +12,11 @@ const createClothingItem = (req, res) => {
     special_instructions 
   } = req.body;
 
-  // Query to insert a clothing item
+  // Query to insert a clothing item with the current time for created_time
   const itemQuery = `
     INSERT INTO clothingItems 
-    (itemStatus, hotel_id, category, cleaningType, pressing_ironing, stain_removal, folding, special_instructions) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (itemStatus, hotel_id, category, cleaningType, pressing_ironing, stain_removal, folding, special_instructions, created_time) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const itemValues = [
@@ -37,6 +37,7 @@ const createClothingItem = (req, res) => {
     res.status(201).json({ message: 'Clothing item created successfully', itemId: result.insertId });
   });
 };
+
 
 const getClothingItemsByHotelId = (req, res) => {
   const { hotel_id } = req.params;
