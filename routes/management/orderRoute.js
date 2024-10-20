@@ -3,8 +3,6 @@ const router = express.Router();
 
 const {
     createOrder,
-    acceptOrderByLaundry, 
-    acceptOrderByHotel,
     setPickupDeliveryRider,
     pickupOrderFromHotel,
     handedToLaundryByRider,
@@ -18,10 +16,6 @@ const authenticateToken = require('../../middleware/auth');
 
 // Route for item Creation
 router.post('/:hotel_id/create', authenticateToken, createOrder);
-
-router.post('/laundry/accept',authenticateToken, acceptOrderByLaundry)
-
-router.post('/hotel/accept',authenticateToken, acceptOrderByHotel)
 
 router.post('/laundry/pickupRider',authenticateToken, setPickupDeliveryRider)
 

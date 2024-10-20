@@ -126,6 +126,66 @@ const requestOrderToLaundry = (req, res) => {
   });
 };
 
+const acceptOrderByHotel = (req, res) => {
+  const { hotel_id,orderId } = req.params;
+
+  if (req.user.id !== parseInt(hotel_id,10)) {
+    return res.status(403).json({ message: 'You do not have permission to accept this order.' });
+  }
+
+  // Validate that orderId is provided
+  if (!orderId) {
+    return res.status(400).json({ message: 'Order ID is required.' });
+  }
+
+  // Query to check the current status of the order and ensure it belongs to the hotel
+  const checkOrderStatusQuery = `
+    SELECT orderStatus, hotel_id FROM orders 
+    WHERE id = ?
+  `;
+
+  db.query(checkOrderStatusQuery, [orderId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error checking order status', error: err });
+    }
+
+    // Check if the order exists
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Order not found.' });
+    }
+
+    const order = results[0];
+
+    // Ensure that the order belongs to the hotel and the status is 2 (accepted by laundry)
+    if (req.user.id !== order.hotel_id) {
+      return res.status(403).json({ message: 'You do not have permission to accept this order.' });
+    }
+
+    if (order.orderStatus !== 2) {
+      return res.status(400).json({ message: 'Only orders with status 2 can be accepted by the hotel.' });
+    }
+
+    // Query to update the order status to 3 (accepted by the hotel)
+    const updateOrderQuery = `
+      UPDATE orders 
+      SET orderStatus = 3 
+      WHERE id = ?
+    `;
+
+    db.query(updateOrderQuery, [orderId], (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error updating order status', error: err });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Failed to update order. Order may not exist.' });
+      }
+
+      res.status(200).json({ message: 'Order accepted by hotel successfully.', orderId });
+    });
+  });
+};
+
 const declineOrderByHotel = (req, res) => {
   const { order_id, hotel_id } = req.params; // Assuming both order_id and laundry_id are passed as URL parameters
   const jwtHotelId = parseInt(req.user.id, 10); 
@@ -155,4 +215,9 @@ const declineOrderByHotel = (req, res) => {
   });
 };
 
-module.exports = { getHotelDetailsById, getOrdersByHotelId, requestOrderToLaundry, declineOrderByHotel };
+module.exports = {
+  getHotelDetailsById, 
+  getOrdersByHotelId, 
+  requestOrderToLaundry, 
+  acceptOrderByHotel,
+  declineOrderByHotel };
