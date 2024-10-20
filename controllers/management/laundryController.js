@@ -15,9 +15,9 @@ const getAllLaundryDetails = (req, res) => {
       l.bank_account_holder_name, 
       l.bank_branch, 
       l.rating,
-      COUNT(o.id) AS review_count  -- Count the number of reviews for each laundry
+      COUNT(o.id) AS review_count
     FROM laundry l
-    LEFT JOIN orders o ON l.id = o.laundry_id  -- Join with orders table to get reviews
+    LEFT JOIN orders o ON l.id = o.laundry_id
     GROUP BY l.id  -- Group by laundry ID to aggregate reviews
   `;
 
