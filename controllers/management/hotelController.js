@@ -81,6 +81,11 @@ const getOrdersByHotelId = (req, res) => {
                   weight: row.weight,
                   special_notes: row.special_notes,
                   price: row.price,
+                  laundry_id:row.laundry_id,
+                  hotel_id: row.hotel_id,
+                  pickup_delivery_rider_id: row.pickup_delivery_rider_id,
+                  drop_delivery_rider_id: row.drop_delivery_rider_id,
+                  review: row.review,
                   clothingItems: [] 
               };
           }
