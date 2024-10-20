@@ -2,54 +2,59 @@ const db = require('../../config/db'); // Your database connection
 
 
 const getAllLaundryDetails = (req, res) => {
-  // Query to get laundry details 
   const query = `
-    SELECT id, email, laundry_name, phone_number, address, nearest_city, bank_name, bank_account_number, bank_account_holder_name, bank_branch
-    FROM laundry
+    SELECT 
+      l.id, 
+      l.email, 
+      l.laundry_name, 
+      l.phone_number, 
+      l.address, 
+      l.nearest_city, 
+      l.bank_name, 
+      l.bank_account_number, 
+      l.bank_account_holder_name, 
+      l.bank_branch, 
+      l.rating,
+      COUNT(o.id) AS review_count  -- Count the number of reviews for each laundry
+    FROM laundry l
+    LEFT JOIN orders o ON l.id = o.laundry_id  -- Join with orders table to get reviews
+    GROUP BY l.id  -- Group by laundry ID to aggregate reviews
   `;
 
-  // Execute the query
-  db.query(query , (err, results) => {
+  db.query(query, (err, results) => {
     if (err) {
       return res.status(500).json({ message: 'Error retrieving laundry details', error: err });
     }
 
-    // Check if hotel was found
     if (results.length === 0) {
-      return res.status(404).json({ message: 'Laundry not found' });
+      return res.status(404).json({ message: 'No laundry found' });
     }
 
-    // Return the hotel details
     res.status(200).json({
       message: 'Laundry details retrieved successfully',
-      laundrys: results
+      laundries: results
     });
   });
 };
 
-// Method to get hotel details by ID
 const getLaundryDetailsById = (req, res) => {
   const {laundry_id} = req.params; 
  
-  // Query to get laundry details by ID
   const query = `
     SELECT id, email, laundry_name, phone_number, address, nearest_city, bank_name, bank_account_number, bank_account_holder_name, bank_branch
     FROM laundry 
     WHERE id = ?
   `;
 
-  // Execute the query
   db.query(query, [laundry_id], (err, results) => {
     if (err) {
       return res.status(500).json({ message: 'Error retrieving laundry details', error: err });
     }
 
-    // Check if hotel was found
     if (results.length === 0) {
       return res.status(404).json({ message: 'Laundry not found' });
     }
 
-    // Return the hotel details
     res.status(200).json({
       message: 'Laundry details retrieved successfully',
       laundry: results[0]
@@ -73,7 +78,6 @@ const getDeliveryRidersByLaundryId = (req, res) => {
     WHERE laundry_id = ?
   `;
 
-  // Execute the query
   db.query(query, [laundry_id], (err, results) => {
     if (err) {
       console.error("Error fetching delivery riders: ", err);
@@ -88,12 +92,10 @@ const getDeliveryRidersByLaundryId = (req, res) => {
 const getOrdersByLaundryId = (req, res) => {
   const { laundry_id } = req.params;
 
-  // Ensure that the hotel_id from the JWT matches the hotel_id being requested
   if (req.user.id !== parseInt(laundry_id, 10)) {
       return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 
-  // Query to fetch all clothing items by hotel_id
   const query = `
       SELECT 
       o.*,
@@ -164,12 +166,11 @@ const acceptOrderByLaundry = (req, res) => {
   if(req.user.id !== parseInt(laundry_id,10)){
     return res.status(403).json({message: 'You do not have permission to access this resource'})
   }
-  // Validate that orderId and price are provided
+
   if (!orderId || !price) {
     return res.status(400).json({ message: 'Order ID and price are required.' });
   }
 
-  // Query to check the current status of the order and ensure it belongs to the laundry
   const checkOrderStatusQuery = `
     SELECT orderStatus, laundry_id FROM orders 
     WHERE id = ?
@@ -180,7 +181,6 @@ const acceptOrderByLaundry = (req, res) => {
       return res.status(500).json({ message: 'Error checking order status', error: err });
     }
 
-    // Check if the order exists
     if (results.length === 0) {
       return res.status(404).json({ message: 'Order not found.' });
     }
@@ -191,12 +191,10 @@ const acceptOrderByLaundry = (req, res) => {
       return res.status(403).json({ message: 'You do not have permission to access this resource' });
     }
 
-    // Ensure that the order is in status 1 (requested to laundry) and belongs to the current laundry
     if (order.orderStatus !== 1) {
       return res.status(400).json({ message: 'Only orders with status 1 can be accepted by laundry.' });
     }
 
-    // Query to update the order with the price and change the status to 2 (accepted by laundry)
     const updateOrderQuery = `
       UPDATE orders 
       SET price = ?, orderStatus = 2 
