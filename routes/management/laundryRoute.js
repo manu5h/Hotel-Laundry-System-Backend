@@ -5,12 +5,15 @@ const {
     getLaundryDetailsById,
     getOrdersByLaundryId,
     acceptOrderByLaundry,
-    declineOrderByLaundry
+    declineOrderByLaundry,
+    getAllLaundryDetails
 } = require('../../controllers/management/laundryController');
 
 const authenticateToken = require('../../middleware/auth');
 
-router.get('/:laundry_id/details', authenticateToken, getLaundryDetailsById)
+router.get('/all', getAllLaundryDetails)
+
+router.get('/:laundry_id/details', getLaundryDetailsById)
 
 router.get('/:laundry_id/orders', authenticateToken, getOrdersByLaundryId)
 
