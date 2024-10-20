@@ -2,9 +2,9 @@ const db = require('../../config/db'); // Your database connection
 
 // Method to get hotel details by ID
 const getHotelDetailsById = (req, res) => {
-  const hotel_id = parseInt(req.params.hotel_id, 10); 
-  const jwtHotelId = parseInt(req.user.id, 10); 
-  
+  const hotel_id = parseInt(req.params.hotel_id, 10);
+  const jwtHotelId = parseInt(req.user.id, 10);
+
   // Compare JWT ID and hotel ID
   if (jwtHotelId !== hotel_id) {
     return res.status(403).json({ message: 'You do not have permission to access this resource' });
@@ -40,7 +40,7 @@ const getOrdersByHotelId = (req, res) => {
   const { hotel_id } = req.params;
 
   if (req.user.id !== parseInt(hotel_id, 10)) {
-      return res.status(403).json({ message: 'You do not have permission to access this resource' });
+    return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 
   const query = `
@@ -55,68 +55,70 @@ const getOrdersByHotelId = (req, res) => {
   `;
 
   db.query(query, [hotel_id], (err, results) => {
-      if (err) {
-          return res.status(500).json({ message: 'Error fetching orders', error: err });
+    if (err) {
+      return res.status(500).json({ message: 'Error fetching orders', error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this hotel' });
+    }
+
+    const orders = {};
+
+    results.forEach(row => {
+      const orderId = row.order_id;
+
+      if (!orders[orderId]) {
+        orders[orderId] = {
+          id: row.order_id,
+          orderStatus: row.orderStatus,
+          created_time: row.created_time,
+          requestedToLaundryDateTime: row.requestedToLaundryDateTime,
+          confirmedByHotelDateTime: row.confirmedByHotelDateTime,
+          pickupFromHotelDateTime: row.pickupFromHotelDateTime,
+          handedToLaundryDateTime: row.handedToLaundryDateTime,
+          laundryCompletedDateTime: row.laundryCompletedDateTime,
+          pickupFromLaundryDateTime: row.pickupFromLaundryDateTime,
+          orderCompletedDateTime: row.orderCompletedDateTime,
+          weight: row.weight,
+          special_notes: row.special_notes,
+          price: row.price,
+          laundry_id: row.laundry_id,
+          hotel_id: row.hotel_id,
+          pickup_delivery_rider_id: row.pickup_delivery_rider_id,
+          drop_delivery_rider_id: row.drop_delivery_rider_id,
+          review: row.review,
+          clothingItems: []
+        };
       }
 
-      if (results.length === 0) {
-          return res.status(404).json({ message: 'No orders found for this hotel' });
+      if (row.clothing_item_id) {
+        orders[orderId].clothingItems.push({
+          id: row.clothing_item_id,
+          itemStatus: row.itemStatus,
+          category: row.category,
+          cleaningType: row.cleaningType,
+          pressing_ironing: row.pressing_ironing,
+          stain_removal: row.stain_removal,
+          folding: row.folding,
+          special_instructions: row.special_instructions,
+          created_time: row.created_time
+        });
       }
+    });
 
-      const orders = {};
+    const response = Object.values(orders);
 
-      results.forEach(row => {
-          const orderId = row.order_id;
-
-          if (!orders[orderId]) {
-              orders[orderId] = {
-                  id: row.order_id,
-                  orderStatus: row.orderStatus,
-                  created_time: row.created_time,
-                  pickupFromHotelDateTime: row.pickupFromHotelDateTime,
-                  handedToLaundryDateTime: row.handedToLaundryDateTime,
-                  laundryCompletedDateTime: row.laundryCompletedDateTime,
-                  pickupFromLaundryDateTime: row.pickupFromLaundryDateTime,
-                  orderCompletedDateTime: row.orderCompletedDateTime,
-                  weight: row.weight,
-                  special_notes: row.special_notes,
-                  price: row.price,
-                  laundry_id:row.laundry_id,
-                  hotel_id: row.hotel_id,
-                  pickup_delivery_rider_id: row.pickup_delivery_rider_id,
-                  drop_delivery_rider_id: row.drop_delivery_rider_id,
-                  review: row.review,
-                  clothingItems: [] 
-              };
-          }
-
-          if (row.clothing_item_id) {
-              orders[orderId].clothingItems.push({
-                  id: row.clothing_item_id,
-                  itemStatus: row.itemStatus,
-                  category: row.category,
-                  cleaningType: row.cleaningType,
-                  pressing_ironing: row.pressing_ironing,
-                  stain_removal: row.stain_removal,
-                  folding: row.folding,
-                  special_instructions: row.special_instructions,
-                  created_time: row.created_time
-              });
-          }
-      });
-
-      const response = Object.values(orders);
-
-      res.status(200).json({ orders: response });
+    res.status(200).json({ orders: response });
   });
 };
 
 
 const requestOrderToLaundry = (req, res) => {
-  const { orderId, laundry_id} = req.body;
-  const { hotel_id} = req.params;
+  const { orderId, laundry_id } = req.body;
+  const { hotel_id } = req.params;
 
-  if (req.user.id !== parseInt(hotel_id,10)) {
+  if (req.user.id !== parseInt(hotel_id, 10)) {
     return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 
@@ -147,7 +149,7 @@ const requestOrderToLaundry = (req, res) => {
     if (req.user.id !== order.hotel_id) {
       return res.status(403).json({ message: 'You do not have permission to access this resource' });
     }
-    
+
 
     if (order.orderStatus !== 0) {
       return res.status(400).json({ message: 'Only orders with status 0 can be requested to laundry.' });
@@ -175,9 +177,9 @@ const requestOrderToLaundry = (req, res) => {
 };
 
 const acceptOrderByHotel = (req, res) => {
-  const { hotel_id,orderId } = req.params;
+  const { hotel_id, orderId } = req.params;
 
-  if (req.user.id !== parseInt(hotel_id,10)) {
+  if (req.user.id !== parseInt(hotel_id, 10)) {
     return res.status(403).json({ message: 'You do not have permission to accept this order.' });
   }
 
@@ -236,9 +238,9 @@ const acceptOrderByHotel = (req, res) => {
 
 const declineOrderByHotel = (req, res) => {
   const { order_id, hotel_id } = req.params; // Assuming both order_id and laundry_id are passed as URL parameters
-  const jwtHotelId = parseInt(req.user.id, 10); 
-  
-  if (jwtHotelId !== parseInt(hotel_id,10)) {
+  const jwtHotelId = parseInt(req.user.id, 10);
+
+  if (jwtHotelId !== parseInt(hotel_id, 10)) {
     return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 
@@ -264,8 +266,8 @@ const declineOrderByHotel = (req, res) => {
 };
 
 const addReview = (req, res) => {
-  const {order_id,laundry_id} = req.params;
-  const {review } = req.body;
+  const { order_id, laundry_id } = req.params;
+  const { review } = req.body;
   const hotel_id = req.user.id;
 
 
@@ -285,7 +287,7 @@ const addReview = (req, res) => {
       return res.status(500).json({ message: 'Error checking order', error: err });
     }
 
-    if (results[0].hotel_id !== parseInt(hotel_id,10)) {
+    if (results[0].hotel_id !== parseInt(hotel_id, 10)) {
       return res.status(403).json({ message: 'You do not have permission to access this resource.' });
     }
 
@@ -328,8 +330,8 @@ const addReview = (req, res) => {
           }
 
           // Review added and laundry review updated successfully
-          res.status(201).json({ 
-            message: 'Review added successfully, laundry review updated.', 
+          res.status(201).json({
+            message: 'Review added successfully, laundry review updated.',
             reviewId: result.insertId,
             averageReview
           });
@@ -340,9 +342,10 @@ const addReview = (req, res) => {
 };
 
 module.exports = {
-  getHotelDetailsById, 
-  getOrdersByHotelId, 
-  requestOrderToLaundry, 
+  getHotelDetailsById,
+  getOrdersByHotelId,
+  requestOrderToLaundry,
   acceptOrderByHotel,
   declineOrderByHotel,
-  addReview };
+  addReview
+};
