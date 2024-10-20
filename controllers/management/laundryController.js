@@ -97,66 +97,80 @@ const getOrdersByLaundryId = (req, res) => {
   }
 
   const query = `
-      SELECT 
+    SELECT 
       o.*,
-      ci.*,
+      ci.*,                       
       o.id AS order_id,
-      ci.id AS clothing_item_id
+      ci.id AS clothing_item_id,
+      h.email AS hotel_email,
+      h.hotel_name,
+      h.nearest_city,
+      h.phone_number AS hotel_phone_number, 
+      h.address AS hotel_address
     FROM orders o
     LEFT JOIN clothingItems ci ON o.id = ci.order_id
+    LEFT JOIN hotel h ON o.hotel_id = h.id
     WHERE o.laundry_id = ?
   `;
 
   db.query(query, [laundry_id], (err, results) => {
-      if (err) {
-          return res.status(500).json({ message: 'Error fetching orders', error: err });
+    if (err) {
+      return res.status(500).json({ message: 'Error fetching orders', error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this laundry' });
+    }
+
+    const orders = {};
+
+    results.forEach(row => {
+      const orderId = row.order_id;
+
+      if (!orders[orderId]) {
+        orders[orderId] = {
+          id: row.order_id,
+          orderStatus: row.orderStatus,
+          created_time: row.created_time,
+          pickupFromHotelDateTime: row.pickupFromHotelDateTime,
+          handedToLaundryDateTime: row.handedToLaundryDateTime,
+          laundryCompletedDateTime: row.laundryCompletedDateTime,
+          pickupFromLaundryDateTime: row.pickupFromLaundryDateTime,
+          orderCompletedDateTime: row.orderCompletedDateTime,
+          weight: row.weight,
+          special_notes: row.special_notes,
+          price: row.price,
+          laundry_id: row.laundry_id,
+          hotel_id: row.hotel_id,
+          pickup_delivery_rider_id: row.pickup_delivery_rider_id,
+          drop_delivery_rider_id: row.drop_delivery_rider_id,
+          review: row.review,
+          hotel_details: {
+            id: row.hotel_id,
+            email: row.hotel_email,
+            hotel_name: row.hotel_name,
+            nearest_city: row.nearest_city,
+            phone_number: row.hotel_phone_number,
+            address: row.hotel_address
+          },
+          clothingItems: []
+        };
       }
 
-      if (results.length === 0) {
-          return res.status(404).json({ message: 'No orders found for this hotel' });
+      if (row.clothing_item_id) {
+        orders[orderId].clothingItems.push({
+          id: row.clothing_item_id,
+          itemStatus: row.itemStatus,
+          category: row.category,
+          cleaningType: row.cleaningType,
+          pressing_ironing: row.pressing_ironing,
+          stain_removal: row.stain_removal,
+          folding: row.folding,
+          special_instructions: row.special_instructions,
+          created_time: row.created_time
+        });
       }
-
-      const orders = {};
-
-      results.forEach(row => {
-          const orderId = row.order_id;
-
-          if (!orders[orderId]) {
-              orders[orderId] = {
-                  id: row.order_id,
-                  orderStatus: row.orderStatus,
-                  created_time: row.created_time,
-                  pickupFromHotelDateTime: row.pickupFromHotelDateTime,
-                  handedToLaundryDateTime: row.handedToLaundryDateTime,
-                  laundryCompletedDateTime: row.laundryCompletedDateTime,
-                  pickupFromLaundryDateTime: row.pickupFromLaundryDateTime,
-                  orderCompletedDateTime: row.orderCompletedDateTime,
-                  weight: row.weight,
-                  special_notes: row.special_notes,
-                  price: row.price,
-                  laundry_id:row.laundry_id,
-                  hotel_id: row.hotel_id,
-                  pickup_delivery_rider_id: row.pickup_delivery_rider_id,
-                  drop_delivery_rider_id: row.drop_delivery_rider_id,
-                  review: row.review,
-                  clothingItems: [] 
-              };
-          }
-
-          if (row.clothing_item_id) {
-              orders[orderId].clothingItems.push({
-                  id: row.clothing_item_id,
-                  itemStatus: row.itemStatus,
-                  category: row.category,
-                  cleaningType: row.cleaningType,
-                  pressing_ironing: row.pressing_ironing,
-                  stain_removal: row.stain_removal,
-                  folding: row.folding,
-                  special_instructions: row.special_instructions,
-                  created_time: row.created_time
-              });
-          }
-      });
+    });
 
       const response = Object.values(orders);
 
