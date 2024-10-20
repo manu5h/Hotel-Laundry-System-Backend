@@ -156,7 +156,7 @@ const requestOrderToLaundry = (req, res) => {
     // Query to update the order with laundry_id and change the status
     const updateOrderQuery = `
       UPDATE orders 
-      SET laundry_id = ?, orderStatus = 1 
+      SET laundry_id = ?, orderStatus = 1, requestedToLaundryDateTime = NOW() 
       WHERE id = ?
     `;
 
@@ -216,7 +216,7 @@ const acceptOrderByHotel = (req, res) => {
     // Query to update the order status to 3 (accepted by the hotel)
     const updateOrderQuery = `
       UPDATE orders 
-      SET orderStatus = 3 
+      SET orderStatus = 3, confirmedByHotelDateTime = NOW()
       WHERE id = ?
     `;
 

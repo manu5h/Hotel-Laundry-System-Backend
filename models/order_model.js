@@ -8,6 +8,8 @@ function createOrderTable() {
     id INT AUTO_INCREMENT PRIMARY KEY,
     orderStatus INT NOT NULL,
     created_time DATETIME NOT NULL,
+    requestedToLaundryDateTime DATETIME,
+    confirmedByHotelDateTime DATETIME,
     pickupFromHotelDateTime DATETIME,
     handedToLaundryDateTime DATETIME,
     laundryCompletedDateTime DATETIME,

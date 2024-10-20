@@ -13,6 +13,6 @@ router.get('/:rider_id/details', authenticateToken, getRiderDetailsById)
 
 router.post('/pickupRider',authenticateToken, setPickupDeliveryRider)
 
-router.post('/laundry/dropRider',authenticateToken, setDropDeliveryRider)
+router.post('/dropRider',authenticateToken, setDropDeliveryRider)
 
 module.exports = router;
