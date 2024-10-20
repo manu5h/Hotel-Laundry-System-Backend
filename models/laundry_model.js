@@ -14,7 +14,8 @@ function createLaundryTable() {
     bank_name VARCHAR(255) NOT NULL,
     bank_account_number VARCHAR(50) NOT NULL,
     bank_account_holder_name VARCHAR(255) NOT NULL,
-    bank_branch VARCHAR(255) NOT NULL
+    bank_branch VARCHAR(255) NOT NULL,
+    rating DOUBLE
   );
   `;
 

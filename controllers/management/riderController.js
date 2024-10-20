@@ -36,33 +36,5 @@ const getRiderDetailsById = (req, res) => {
   });
 };
 
-const getDeliveryRidersByLaundryId = (req, res) => {
-    const { laundry_id } = req.params; 
 
-    console.log('JWT id:',req.user.id);
-    console.log('laiundry id:',laundry_id);
-  
-    if (req.user.id !==  parseInt(laundry_id,10)) {
-        return res.status(403).json({ message: 'You do not have permission to access this resource' });
-    }
-
-    const query = `
-      SELECT id, email, name, phone_number, address, NIC 
-      FROM deliveryRiders 
-      WHERE laundry_id = ?
-    `;
-  
-    // Execute the query
-    db.query(query, [laundry_id], (err, results) => {
-      if (err) {
-        console.error("Error fetching delivery riders: ", err);
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
-
-  
-      return res.status(200).json(results);
-    });
-  };
-
-
-module.exports = { getRiderDetailsById ,getDeliveryRidersByLaundryId};
+module.exports = { getRiderDetailsById };
