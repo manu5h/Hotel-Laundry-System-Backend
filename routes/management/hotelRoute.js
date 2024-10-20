@@ -5,6 +5,7 @@ const {
     getHotelDetailsById,
     getOrdersByHotelId,
     requestOrderToLaundry,
+    acceptOrderByHotel,
     declineOrderByHotel
 } = require('../../controllers/management/hotelController');
 
@@ -16,7 +17,9 @@ router.get('/:hotel_id/orders', authenticateToken, getOrdersByHotelId)
 
 router.post('/:hotel_id/request-laundry',authenticateToken, requestOrderToLaundry)
 
-router.put('/:hotel_id/orders/:order_id/decline', authenticateToken, declineOrderByHotel)
+router.post('/:hotel_id/order/:orderId/accept',authenticateToken, acceptOrderByHotel)
+
+router.put('/:hotel_id/order/:order_id/decline', authenticateToken, declineOrderByHotel)
 
 
 module.exports = router;

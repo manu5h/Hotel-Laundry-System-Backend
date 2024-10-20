@@ -4,6 +4,7 @@ const router = express.Router();
 const {
     getLaundryDetailsById,
     getOrdersByLaundryId,
+    acceptOrderByLaundry,
     declineOrderByLaundry
 } = require('../../controllers/management/laundryController');
 
@@ -13,7 +14,9 @@ router.get('/:laundry_id/details', authenticateToken, getLaundryDetailsById)
 
 router.get('/:laundry_id/orders', authenticateToken, getOrdersByLaundryId)
 
-router.put('/:laundry_id/orders/:order_id/decline', authenticateToken, declineOrderByLaundry)
+router.post('/:laundry_id/order/:orderId/accept',authenticateToken, acceptOrderByLaundry)
+
+router.put('/:laundry_id/order/:order_id/decline', authenticateToken, declineOrderByLaundry)
 
 
 module.exports = router;

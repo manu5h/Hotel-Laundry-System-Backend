@@ -88,123 +88,6 @@ const createOrder = (req, res) => {
   });
 };
 
-
-const acceptOrderByLaundry = (req, res) => {
-  const { orderId, price } = req.body;
-
-
-  console.log('Laundry ID from JWT:', req.user.id);
-
-
-  // Validate that orderId and price are provided
-  if (!orderId || !price) {
-    return res.status(400).json({ message: 'Order ID and price are required.' });
-  }
-
-  // Query to check the current status of the order and ensure it belongs to the laundry
-  const checkOrderStatusQuery = `
-    SELECT orderStatus, laundry_id FROM orders 
-    WHERE id = ?
-  `;
-
-  db.query(checkOrderStatusQuery, [orderId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error checking order status', error: err });
-    }
-
-    // Check if the order exists
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'Order not found.' });
-    }
-
-    const order = results[0];
-
-    if (req.user.id !== order.laundry_id) {
-      return res.status(403).json({ message: 'You do not have permission to access this resource' });
-    }
-
-    // Ensure that the order is in status 1 (requested to laundry) and belongs to the current laundry
-    if (order.orderStatus !== 1) {
-      return res.status(400).json({ message: 'Only orders with status 1 can be accepted by laundry.' });
-    }
-
-    // Query to update the order with the price and change the status to 2 (accepted by laundry)
-    const updateOrderQuery = `
-      UPDATE orders 
-      SET price = ?, orderStatus = 2 
-      WHERE id = ?
-    `;
-
-    db.query(updateOrderQuery, [price, orderId], (err, result) => {
-      if (err) {
-        return res.status(500).json({ message: 'Error updating order', error: err });
-      }
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: 'Failed to update order. Order may not exist.' });
-      }
-
-      res.status(200).json({ message: 'Order accepted by laundry successfully.', orderId });
-    });
-  });
-};
-
-const acceptOrderByHotel = (req, res) => {
-  const { orderId } = req.body;
-
-  // Validate that orderId is provided
-  if (!orderId) {
-    return res.status(400).json({ message: 'Order ID is required.' });
-  }
-
-  // Query to check the current status of the order and ensure it belongs to the hotel
-  const checkOrderStatusQuery = `
-    SELECT orderStatus, hotel_id FROM orders 
-    WHERE id = ?
-  `;
-
-  db.query(checkOrderStatusQuery, [orderId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error checking order status', error: err });
-    }
-
-    // Check if the order exists
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'Order not found.' });
-    }
-
-    const order = results[0];
-
-    // Ensure that the order belongs to the hotel and the status is 2 (accepted by laundry)
-    if (req.user.id !== order.hotel_id) {
-      return res.status(403).json({ message: 'You do not have permission to accept this order.' });
-    }
-
-    if (order.orderStatus !== 2) {
-      return res.status(400).json({ message: 'Only orders with status 2 can be accepted by the hotel.' });
-    }
-
-    // Query to update the order status to 3 (accepted by the hotel)
-    const updateOrderQuery = `
-      UPDATE orders 
-      SET orderStatus = 3 
-      WHERE id = ?
-    `;
-
-    db.query(updateOrderQuery, [orderId], (err, result) => {
-      if (err) {
-        return res.status(500).json({ message: 'Error updating order status', error: err });
-      }
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: 'Failed to update order. Order may not exist.' });
-      }
-
-      res.status(200).json({ message: 'Order accepted by hotel successfully.', orderId });
-    });
-  });
-};
-
 const setPickupDeliveryRider = (req, res) => {
   const { orderId, pickupDeliveryRiderId } = req.body;
 
@@ -681,8 +564,6 @@ const completeOrder = (req, res) => {
 
 module.exports = { 
   createOrder , 
-  acceptOrderByLaundry, 
-  acceptOrderByHotel, 
   setPickupDeliveryRider,
   pickupOrderFromHotel,
   handedToLaundryByRider,
