@@ -18,7 +18,7 @@ const getAllLaundryDetails = (req, res) => {
       COUNT(o.id) AS review_count
     FROM laundry l
     LEFT JOIN orders o ON l.id = o.laundry_id
-    GROUP BY l.id  -- Group by laundry ID to aggregate reviews
+    GROUP BY l.id
   `;
 
   db.query(query, (err, results) => {
