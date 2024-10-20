@@ -121,7 +121,7 @@ const getOrdersByLaundryId = (req, res) => {
 
           if (!orders[orderId]) {
               orders[orderId] = {
-                  order_id: row.order_id,
+                  id: row.order_id,
                   orderStatus: row.orderStatus,
                   created_time: row.created_time,
                   pickupFromHotelDateTime: row.pickupFromHotelDateTime,
@@ -138,7 +138,7 @@ const getOrdersByLaundryId = (req, res) => {
 
           if (row.clothing_item_id) {
               orders[orderId].clothingItems.push({
-                  clothing_item_id: row.clothing_item_id,
+                  id: row.clothing_item_id,
                   itemStatus: row.itemStatus,
                   category: row.category,
                   cleaningType: row.cleaningType,
