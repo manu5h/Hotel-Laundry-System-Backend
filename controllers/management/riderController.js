@@ -72,7 +72,7 @@ const setPickupDeliveryRider = (req, res) => {
       return res.status(403).json({ message: 'You do not have permission to assign a delivery rider to this order.' });
     }
 
-    // Ensure that the order is in the correct status to assign a delivery rider (e.g., status 2)
+    // Ensure that the order is in the correct status to assign a delivery rider 
     if (order.orderStatus !== 3) {
       return res.status(400).json({ message: 'Only orders with status 3 can have a delivery rider assigned.' });
     }
@@ -134,7 +134,7 @@ const setDropDeliveryRider = (req, res) => {
       return res.status(403).json({ message: 'You do not have permission to assign a delivery rider to this order.' });
     }
 
-    // Ensure that the order is in the correct status to assign a delivery rider (e.g., status 2)
+    // Ensure that the order is in the correct status to assign a delivery rider 
     if (order.orderStatus !== 6) {
       return res.status(400).json({ message: 'Only orders with status 6 can have a delivery rider assigned.' });
     }
