@@ -132,6 +132,8 @@ const getOrdersByLaundryId = (req, res) => {
           id: row.order_id,
           orderStatus: row.orderStatus,
           created_time: row.created_time,
+          requestedToLaundryDateTime: row.requestedToLaundryDateTime,
+          confirmedByHotelDateTime: row.confirmedByHotelDateTime,
           pickupFromHotelDateTime: row.pickupFromHotelDateTime,
           handedToLaundryDateTime: row.handedToLaundryDateTime,
           laundryCompletedDateTime: row.laundryCompletedDateTime,
