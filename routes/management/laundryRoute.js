@@ -4,6 +4,7 @@ const router = express.Router();
 const {
     getLaundryDetailsById,
     getOrdersByLaundryId,
+    getDeliveryRidersByLaundryId,
     acceptOrderByLaundry,
     declineOrderByLaundry,
     getAllLaundryDetails
@@ -16,6 +17,8 @@ router.get('/all', getAllLaundryDetails)
 router.get('/:laundry_id/details', getLaundryDetailsById)
 
 router.get('/:laundry_id/orders', authenticateToken, getOrdersByLaundryId)
+
+router.get('/:laundry_id/riders', authenticateToken, getDeliveryRidersByLaundryId)
 
 router.post('/:laundry_id/order/:orderId/accept',authenticateToken, acceptOrderByLaundry)
 

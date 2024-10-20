@@ -2,11 +2,11 @@ const db = require('../../config/db'); // Your database connection
 
 // Method to get hotel details by ID
 const getHotelDetailsById = (req, res) => {
-  const hotelId = parseInt(req.params.hotel_id, 10); 
+  const hotel_id = parseInt(req.params.hotel_id, 10); 
   const jwtHotelId = parseInt(req.user.id, 10); 
   
   // Compare JWT ID and hotel ID
-  if (jwtHotelId !== hotelId) {
+  if (jwtHotelId !== hotel_id) {
     return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 
@@ -18,7 +18,7 @@ const getHotelDetailsById = (req, res) => {
   `;
 
   // Execute the query
-  db.query(query, [hotelId], (err, results) => {
+  db.query(query, [hotel_id], (err, results) => {
     if (err) {
       return res.status(500).json({ message: 'Error retrieving hotel details', error: err });
     }
@@ -39,15 +39,19 @@ const getHotelDetailsById = (req, res) => {
 const getOrdersByHotelId = (req, res) => {
   const { hotel_id } = req.params;
 
-  // Ensure that the hotel_id from the JWT matches the hotel_id being requested
   if (req.user.id !== parseInt(hotel_id, 10)) {
       return res.status(403).json({ message: 'You do not have permission to access this resource' });
   }
 
-  // Query to fetch all clothing items by hotel_id
   const query = `
-      SELECT * FROM orders 
-      WHERE hotel_id = ?
+    SELECT 
+      o.*,
+      ci.*,
+      o.id AS order_id,
+      ci.id AS clothing_item_id
+    FROM orders o
+    LEFT JOIN clothingItems ci ON o.id = ci.order_id
+    WHERE o.hotel_id = ?
   `;
 
   db.query(query, [hotel_id], (err, results) => {
@@ -59,7 +63,46 @@ const getOrdersByHotelId = (req, res) => {
           return res.status(404).json({ message: 'No orders found for this hotel' });
       }
 
-      res.status(200).json({ orders: results });
+      const orders = {};
+
+      results.forEach(row => {
+          const orderId = row.order_id;
+
+          if (!orders[orderId]) {
+              orders[orderId] = {
+                  order_id: row.order_id,
+                  orderStatus: row.orderStatus,
+                  created_time: row.created_time,
+                  pickupFromHotelDateTime: row.pickupFromHotelDateTime,
+                  handedToLaundryDateTime: row.handedToLaundryDateTime,
+                  laundryCompletedDateTime: row.laundryCompletedDateTime,
+                  pickupFromLaundryDateTime: row.pickupFromLaundryDateTime,
+                  orderCompletedDateTime: row.orderCompletedDateTime,
+                  weight: row.weight,
+                  special_notes: row.special_notes,
+                  price: row.price,
+                  clothingItems: [] 
+              };
+          }
+
+          if (row.clothing_item_id) {
+              orders[orderId].clothingItems.push({
+                  clothing_item_id: row.clothing_item_id,
+                  itemStatus: row.itemStatus,
+                  category: row.category,
+                  cleaningType: row.cleaningType,
+                  pressing_ironing: row.pressing_ironing,
+                  stain_removal: row.stain_removal,
+                  folding: row.folding,
+                  special_instructions: row.special_instructions,
+                  created_time: row.created_time
+              });
+          }
+      });
+
+      const response = Object.values(orders);
+
+      res.status(200).json({ orders: response });
   });
 };
 
@@ -215,9 +258,86 @@ const declineOrderByHotel = (req, res) => {
   });
 };
 
+const addReview = (req, res) => {
+  const {order_id,laundry_id} = req.params;
+  const {review } = req.body;
+  const hotel_id = req.user.id;
+
+
+  // Validate required fields
+  if (!order_id || review === undefined) {
+    return res.status(400).json({ message: 'Laundry ID and review are required.' });
+  }
+
+  // Check if the hotel has already added a review for this laundry
+  const checkReviewQuery = `
+    SELECT * FROM orders 
+    WHERE id = ? 
+  `;
+
+  db.query(checkReviewQuery, [order_id], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error checking order', error: err });
+    }
+
+    if (results[0].hotel_id !== parseInt(hotel_id,10)) {
+      return res.status(403).json({ message: 'You do not have permission to access this resource.' });
+    }
+
+    // Insert the new review
+    const updateorderReviewQuery = `
+    UPDATE orders
+    SET review = ?
+    WHERE id = ?
+  `;
+
+    db.query(updateorderReviewQuery, [review, order_id], (err, result) => {
+
+      if (err) {
+        return res.status(500).json({ message: 'Error adding review', error: err });
+      }
+
+      const calculateAverageQuery = `
+        SELECT AVG(review) AS averageReview
+        FROM orders
+        WHERE laundry_id = ?
+      `;
+
+      db.query(calculateAverageQuery, [laundry_id], (err, avgResults) => {
+        if (err) {
+          return res.status(500).json({ message: 'Error calculating average review', error: err });
+        }
+
+        const averageReview = avgResults[0].averageReview;
+
+        // Update the review column in the laundry table with the new average
+        const updateLaundryReviewQuery = `
+          UPDATE laundry
+          SET rating = ?
+          WHERE id = ?
+        `;
+
+        db.query(updateLaundryReviewQuery, [averageReview, laundry_id], (err) => {
+          if (err) {
+            return res.status(500).json({ message: 'Error updating laundry review', error: err });
+          }
+
+          // Review added and laundry review updated successfully
+          res.status(201).json({ 
+            message: 'Review added successfully, laundry review updated.', 
+            reviewId: result.insertId,
+            averageReview
+          });
+        });
+      });
+    });
+  });
+};
+
 module.exports = {
   getHotelDetailsById, 
   getOrdersByHotelId, 
   requestOrderToLaundry, 
   acceptOrderByHotel,
-  declineOrderByHotel };
+  declineOrderByHotel,
+  addReview };
