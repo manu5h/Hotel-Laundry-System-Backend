@@ -15,15 +15,15 @@ const authenticateToken = require('../../middleware/auth');
 // Route for item Creation
 router.post('/:hotel_id/create', authenticateToken, createOrder);
 
-router.post('/hotelPickup',authenticateToken, pickupOrderFromHotel)
+router.post('/:orderId/hotelPickup',authenticateToken, pickupOrderFromHotel)
 
-router.post('/laundryDrop',authenticateToken, handedToLaundryByRider)
+router.post('/:orderId/laundryDrop',authenticateToken, handedToLaundryByRider)
 
-router.post('/laundryCompleted',authenticateToken, laundryCompleted)
+router.post('/:orderId/laundryCompleted',authenticateToken, laundryCompleted)
 
-router.post('/laundryPickup',authenticateToken, pickupOrderFromLaundry)
+router.post('/:orderId/laundryPickup',authenticateToken, pickupOrderFromLaundry)
 
-router.post('/complete',authenticateToken, completeOrder)
+router.post('/:orderId/complete',authenticateToken, completeOrder)
 
 
 module.exports = router;
