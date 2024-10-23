@@ -90,7 +90,7 @@ const createOrder = (req, res) => {
 
 
 const pickupOrderFromHotel = (req, res) => {
-  const { orderId, pickupTime } = req.body;
+  const { orderId } = req.params;
 
   // Ensure that the rider_id from the JWT exists
   if (!req.user.id) {
@@ -98,12 +98,9 @@ const pickupOrderFromHotel = (req, res) => {
   }
 
   // Validate that orderId and pickupTime are provided
-  if (!orderId || !pickupTime) {
-    return res.status(400).json({ message: 'Order ID and pickup time are required.' });
+  if (!orderId) {
+    return res.status(400).json({ message: 'Order ID is required.' });
   }
-
-  // Format the pickupTime using the helper
-  const formattedPickupTime = formatDateForMySQL(pickupTime);
 
   // Query to check the current status of the order and ensure the deliveryRiderId matches the rider_id
   const checkOrderStatusQuery = `
@@ -136,11 +133,11 @@ const pickupOrderFromHotel = (req, res) => {
     // Query to update the order status to 4 and set the pickup time
     const updateOrderQuery = `
       UPDATE orders 
-      SET orderStatus = 4, pickupfromHotelDateTime = ? 
+      SET orderStatus = 4, pickupfromHotelDateTime = NOW() 
       WHERE id = ?
     `;
 
-    db.query(updateOrderQuery, [formattedPickupTime, orderId], (err, result) => {
+    db.query(updateOrderQuery, [orderId], (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Error updating order', error: err });
       }
@@ -152,14 +149,13 @@ const pickupOrderFromHotel = (req, res) => {
       res.status(200).json({ 
         message: 'Order picked up successfully by rider.', 
         orderId, 
-        pickupTime: formattedPickupTime 
       });
     });
   });
 };
 
 const handedToLaundryByRider = (req, res) => {
-  const { orderId, dropTime } = req.body;
+  const {orderId } = req.params;
 
   // Ensure that the rider_id from the JWT exists
   if (!req.user.id) {
@@ -167,12 +163,9 @@ const handedToLaundryByRider = (req, res) => {
   }
 
   // Validate that orderId and pickupTime are provided
-  if (!orderId || !dropTime) {
-    return res.status(400).json({ message: 'Order ID and dop time are required.' });
+  if (!orderId) {
+    return res.status(400).json({ message: 'Order ID is required.' });
   }
-
-  // Format the pickupTime using the helper
-  const formattedDropTime = formatDateForMySQL(dropTime);
 
   // Query to check the current status of the order and ensure the deliveryRiderId matches the rider_id
   const checkOrderStatusQuery = `
@@ -205,11 +198,11 @@ const handedToLaundryByRider = (req, res) => {
     // Query to update the order status to 4 and set the pickup time
     const updateOrderQuery = `
       UPDATE orders 
-      SET orderStatus = 5, handedToLaundryDateTime = ? 
+      SET orderStatus = 5, handedToLaundryDateTime = NOW() 
       WHERE id = ?
     `;
 
-    db.query(updateOrderQuery, [formattedDropTime, orderId], (err, result) => {
+    db.query(updateOrderQuery, [orderId], (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Error updating order', error: err });
       }
@@ -219,16 +212,15 @@ const handedToLaundryByRider = (req, res) => {
       }
 
       res.status(200).json({ 
-        message: 'Order dropeed successfully by rider.', 
-        orderId, 
-        dropTime: formattedDropTime 
+        message: 'Order dropped successfully by rider.', 
+        orderId
       });
     });
   });
 };
 
 const laundryCompleted = (req, res) => {
-  const { orderId, completedTime } = req.body;
+  const { orderId } = req.params;
 
   // Ensure that the rider_id from the JWT exists
   if (!req.user.id) {
@@ -236,12 +228,9 @@ const laundryCompleted = (req, res) => {
   }
 
   // Validate that orderId and pickupTime are provided
-  if (!orderId || !completedTime) {
-    return res.status(400).json({ message: 'Order ID and completed time are required.' });
+  if (!orderId) {
+    return res.status(400).json({ message: 'Order ID is required.' });
   }
-
-  // Format the pickupTime using the helper
-  const formattedCompletedTime = formatDateForMySQL(completedTime);
 
   // Query to check the current status of the order and ensure the deliveryRiderId matches the rider_id
   const checkOrderStatusQuery = `
@@ -274,11 +263,11 @@ const laundryCompleted = (req, res) => {
     // Query to update the order status to 4 and set the pickup time
     const updateOrderQuery = `
       UPDATE orders 
-      SET orderStatus = 6, laundryCompletedDateTime = ? 
-      WHERE id = ?
+      SET orderStatus = 6, laundryCompletedDateTime = NOW()
+      WHERE id = ? 
     `;
 
-    db.query(updateOrderQuery, [formattedCompletedTime, orderId], (err, result) => {
+    db.query(updateOrderQuery, [orderId], (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Error updating order', error: err });
       }
@@ -289,8 +278,7 @@ const laundryCompleted = (req, res) => {
 
       res.status(200).json({ 
         message: 'Order completed successfully by laundry.', 
-        orderId, 
-        completedTime: formattedCompletedTime 
+        orderId
       });
     });
   });
@@ -298,20 +286,12 @@ const laundryCompleted = (req, res) => {
 
 
 const pickupOrderFromLaundry = (req, res) => {
-  const { orderId, pickupTime } = req.body;
+  const { orderId } = req.params;
 
   // Ensure that the rider_id from the JWT exists
   if (!req.user.id) {
     return res.status(403).json({ message: 'Rider ID not found in JWT.' });
   }
-
-  // Validate that orderId and pickupTime are provided
-  if (!orderId || !pickupTime) {
-    return res.status(400).json({ message: 'Order ID and pickup time are required.' });
-  }
-
-  // Format the pickupTime using the helper
-  const formattedPickupTime = formatDateForMySQL(pickupTime);
 
   // Query to check the current status of the order and ensure the deliveryRiderId matches the rider_id
   const checkOrderStatusQuery = `
@@ -344,11 +324,11 @@ const pickupOrderFromLaundry = (req, res) => {
     // Query to update the order status to 4 and set the pickup time
     const updateOrderQuery = `
       UPDATE orders 
-      SET orderStatus = 7, pickupFromLaundryDateTime = ? 
+      SET orderStatus = 7, pickupFromLaundryDateTime = NOW()
       WHERE id = ?
     `;
 
-    db.query(updateOrderQuery, [formattedPickupTime, orderId], (err, result) => {
+    db.query(updateOrderQuery, [orderId], (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Error updating order', error: err });
       }
@@ -359,28 +339,24 @@ const pickupOrderFromLaundry = (req, res) => {
 
       res.status(200).json({ 
         message: 'Order picked up successfully by rider.', 
-        orderId, 
-        pickupTime: formattedPickupTime 
+        orderId
       });
     });
   });
 };
 
 const completeOrder = (req, res) => {
-  const { orderId, completedTime } = req.body;
+  const { orderId} = req.params;
 
   // Ensure that the rider_id from the JWT exists
   if (!req.user.id) {
     return res.status(403).json({ message: 'Rider ID not found in JWT.' });
   }
 
-  // Validate that orderId and pickupTime are provided
-  if (!orderId || !completedTime) {
-    return res.status(400).json({ message: 'Order ID and pickup time are required.' });
+  // Validate that orderId is provided
+  if (!orderId ) {
+    return res.status(400).json({ message: 'Order ID is required.' });
   }
-
-  // Format the completed time using the helper
-  const formattedPickupTime = formatDateForMySQL(completedTime);
 
   // Query to check the current status of the order and ensure the deliveryRiderId matches the rider_id
   const checkOrderStatusQuery = `
@@ -413,11 +389,11 @@ const completeOrder = (req, res) => {
     // Query to update the order status to 4 and set the pickup time
     const updateOrderQuery = `
       UPDATE orders 
-      SET orderStatus = 8, orderCompletedDateTime = ? 
+      SET orderStatus = 8, orderCompletedDateTime = NOW() 
       WHERE id = ?
     `;
 
-    db.query(updateOrderQuery, [formattedPickupTime, orderId], (err, result) => {
+    db.query(updateOrderQuery, [orderId], (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Error updating order', error: err });
       }
@@ -428,8 +404,7 @@ const completeOrder = (req, res) => {
 
       res.status(200).json({ 
         message: 'Order completed successfully by rider.', 
-        orderId, 
-        completedTime: formattedPickupTime 
+        orderId
       });
     });
   });

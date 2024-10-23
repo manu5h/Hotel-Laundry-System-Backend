@@ -160,4 +160,95 @@ const setDropDeliveryRider = (req, res) => {
   });
 };
 
-module.exports = { getRiderDetailsById, setPickupDeliveryRider, setDropDeliveryRider };
+const getOrdersByRiderId = (req, res) => {
+  const { rider_id } = req.params;
+
+  // Check if the rider is authorized to view these orders
+  if (req.user.id !== parseInt(rider_id, 10)) {
+    return res.status(403).json({ message: 'You do not have permission to access this resource' });
+  }
+
+  const query = `
+    SELECT 
+      o.*,
+      ci.*,
+      o.id AS order_id,
+      ci.id AS clothing_item_id,
+      h.email AS hotel_email,
+      h.hotel_name,
+      h.nearest_city,
+      h.phone_number,
+      h.address
+    FROM orders o
+    LEFT JOIN clothingItems ci ON o.id = ci.order_id
+    LEFT JOIN hotel h ON o.hotel_id = h.id
+    WHERE o.pickup_delivery_rider_id = ? OR o.drop_delivery_rider_id = ?
+  `;
+
+  db.query(query, [rider_id, rider_id], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error fetching orders', error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this rider' });
+    }
+
+    const orders = {};
+
+    results.forEach(row => {
+      const orderId = row.order_id;
+
+      if (!orders[orderId]) {
+        orders[orderId] = {
+          id: row.order_id,
+          orderStatus: row.orderStatus,
+          created_time: row.created_time,
+          requestedToLaundryDateTime: row.requestedToLaundryDateTime,
+          confirmedByHotelDateTime: row.confirmedByHotelDateTime,
+          pickupFromHotelDateTime: row.pickupFromHotelDateTime,
+          handedToLaundryDateTime: row.handedToLaundryDateTime,
+          laundryCompletedDateTime: row.laundryCompletedDateTime,
+          pickupFromLaundryDateTime: row.pickupFromLaundryDateTime,
+          orderCompletedDateTime: row.orderCompletedDateTime,
+          weight: row.weight,
+          special_notes: row.special_notes,
+          price: row.price,
+          laundry_id: row.laundry_id,
+          hotel: {
+            id: row.hotel_id,
+            email: row.hotel_email,
+            name: row.hotel_name,
+            nearest_city: row.nearest_city,
+            phone_number: row.phone_number,
+            address: row.address
+          },
+          pickup_delivery_rider_id: row.pickup_delivery_rider_id,
+          drop_delivery_rider_id: row.drop_delivery_rider_id,
+          review: row.review,
+          clothingItems: [] // Initialize the clothingItems array
+        };
+      }
+
+      if (row.clothing_item_id) {
+        orders[orderId].clothingItems.push({
+          id: row.clothing_item_id,
+          itemStatus: row.itemStatus,
+          category: row.category,
+          cleaningType: row.cleaningType,
+          pressing_ironing: row.pressing_ironing,
+          stain_removal: row.stain_removal,
+          folding: row.folding,
+          special_instructions: row.special_instructions,
+          created_time: row.created_time
+        });
+      }
+    });
+
+    const response = Object.values(orders);
+    res.status(200).json({ orders: response });
+  });
+};
+
+
+module.exports = { getRiderDetailsById, setPickupDeliveryRider, setDropDeliveryRider,getOrdersByRiderId };
