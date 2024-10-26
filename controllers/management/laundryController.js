@@ -17,7 +17,7 @@ const getAllLaundryDetails = (req, res) => {
       l.rating,
       COUNT(o.id) AS review_count
     FROM laundry l
-    LEFT JOIN orders o ON l.id = o.laundry_id
+    LEFT JOIN orders o ON l.id = o.laundry_id AND o.review IS NOT NULL
     GROUP BY l.id
   `;
 
