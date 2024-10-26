@@ -266,48 +266,50 @@ const declineOrderByHotel = (req, res) => {
 };
 
 const addReview = (req, res) => {
-  const { order_id, laundry_id } = req.params;
+  const { order_id } = req.params;
   const { review } = req.body;
   const hotel_id = req.user.id;
 
-
   // Validate required fields
   if (!order_id || review === undefined) {
-    return res.status(400).json({ message: 'Laundry ID and review are required.' });
+    return res.status(400).json({ message: 'Order ID and review are required.' });
   }
 
-  // Check if the hotel has already added a review for this laundry
-  const checkReviewQuery = `
+  // Check if the order belongs to the hotel making the review
+  const checkOrderQuery = `
     SELECT * FROM orders 
     WHERE id = ? 
   `;
 
-  db.query(checkReviewQuery, [order_id], (err, results) => {
+  db.query(checkOrderQuery, [order_id], (err, results) => {
     if (err) {
       return res.status(500).json({ message: 'Error checking order', error: err });
     }
 
-    if (results[0].hotel_id !== parseInt(hotel_id, 10)) {
+    // Validate order ownership
+    if (results.length === 0 || results[0].hotel_id !== parseInt(hotel_id, 10)) {
       return res.status(403).json({ message: 'You do not have permission to access this resource.' });
     }
 
-    // Insert the new review
-    const updateorderReviewQuery = `
-    UPDATE orders
-    SET review = ?
-    WHERE id = ?
-  `;
+    const laundry_id = results[0].laundry_id;
 
-    db.query(updateorderReviewQuery, [review, order_id], (err, result) => {
+    // Update the review for the order
+    const updateOrderReviewQuery = `
+      UPDATE orders
+      SET review = ?
+      WHERE id = ?
+    `;
 
+    db.query(updateOrderReviewQuery, [review, order_id], (err) => {
       if (err) {
         return res.status(500).json({ message: 'Error adding review', error: err });
       }
 
+      // Calculate the new average review for the laundry
       const calculateAverageQuery = `
         SELECT AVG(review) AS averageReview
         FROM orders
-        WHERE laundry_id = ?
+        WHERE laundry_id = ? AND review IS NOT NULL
       `;
 
       db.query(calculateAverageQuery, [laundry_id], (err, avgResults) => {
@@ -316,8 +318,12 @@ const addReview = (req, res) => {
         }
 
         const averageReview = avgResults[0].averageReview;
+       
+        if (averageReview === null) {
+          return res.status(404).json({ message: 'No valid reviews found to calculate average.' });
+        }
 
-        // Update the review column in the laundry table with the new average
+        // Update the laundry's average rating
         const updateLaundryReviewQuery = `
           UPDATE laundry
           SET rating = ?
@@ -328,11 +334,11 @@ const addReview = (req, res) => {
           if (err) {
             return res.status(500).json({ message: 'Error updating laundry review', error: err });
           }
+        
 
-          // Review added and laundry review updated successfully
+          // Review added and laundry rating updated successfully
           res.status(201).json({
             message: 'Review added successfully, laundry review updated.',
-            reviewId: result.insertId,
             averageReview
           });
         });
@@ -340,6 +346,7 @@ const addReview = (req, res) => {
     });
   });
 };
+
 
 module.exports = {
   getHotelDetailsById,

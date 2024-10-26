@@ -22,7 +22,7 @@ router.post('/:hotel_id/order/:orderId/accept',authenticateToken, acceptOrderByH
 
 router.put('/:hotel_id/order/:order_id/decline', authenticateToken, declineOrderByHotel)
 
-router.post('/:laundry_id/:order_id/addReview', authenticateToken, addReview);
+router.post('/:order_id/addReview', authenticateToken, addReview);
 
 
 module.exports = router;
