@@ -44,15 +44,11 @@ const registerLaundry = (req, res) => {
     laundry_name,
     phone_number,
     address,
-    nearest_city,
-    bank_name,
-    bank_account_number,
-    bank_account_holder_name,
-    bank_branch,
+    nearest_city
   } = req.body;
 
   // Input validation
-  if (!email || !password || !laundry_name || !phone_number || !address || !nearest_city || !bank_name || !bank_account_number || !bank_account_holder_name || !bank_branch) {
+  if (!email || !password || !laundry_name || !phone_number || !address || !nearest_city) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -76,8 +72,8 @@ const registerLaundry = (req, res) => {
 
       // SQL query to insert laundry with bank details
       const query = `
-        INSERT INTO laundry (email, password, laundry_name, phone_number, address, nearest_city, bank_name, bank_account_number, bank_account_holder_name, bank_branch)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO laundry (email, password, laundry_name, phone_number, address, nearest_city)
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
       const values = [
         email,
@@ -86,10 +82,6 @@ const registerLaundry = (req, res) => {
         phone_number,
         address,
         nearest_city,
-        bank_name,
-        bank_account_number,
-        bank_account_holder_name,
-        bank_branch,
       ];
 
       // Execute the query

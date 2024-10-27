@@ -50,11 +50,7 @@ const updateLaundry = (req, res) => {
     laundry_name,
     phone_number,
     address,
-    nearest_city,
-    bank_name,
-    bank_account_number,
-    bank_account_holder_name,
-    bank_branch,
+    nearest_city
   } = req.body;
 
   // Query to check if the laundry exists based on the email
@@ -73,8 +69,7 @@ const updateLaundry = (req, res) => {
     // Update query to modify laundry details, including bank details
     const updateQuery = `
       UPDATE laundry
-      SET laundry_name = ?, phone_number = ?, address = ?, nearest_city = ?, 
-      bank_name = ?, bank_account_number = ?, bank_account_holder_name = ?, bank_branch = ?
+      SET laundry_name = ?, phone_number = ?, address = ?, nearest_city = ?
       WHERE email = ?
     `;
 
@@ -85,11 +80,7 @@ const updateLaundry = (req, res) => {
         phone_number,
         address,
         nearest_city,
-        bank_name,
-        bank_account_number,
-        bank_account_holder_name,
-        bank_branch,
-        email,
+        email
       ],
       (err, result) => {
         if (err) {

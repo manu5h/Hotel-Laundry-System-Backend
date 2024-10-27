@@ -10,10 +10,6 @@ const getAllLaundryDetails = (req, res) => {
       l.phone_number, 
       l.address, 
       l.nearest_city, 
-      l.bank_name, 
-      l.bank_account_number, 
-      l.bank_account_holder_name, 
-      l.bank_branch, 
       l.rating,
       COUNT(o.id) AS review_count
     FROM laundry l
@@ -41,7 +37,7 @@ const getLaundryDetailsById = (req, res) => {
   const {laundry_id} = req.params; 
  
   const query = `
-    SELECT id, email, laundry_name, phone_number, address, nearest_city, bank_name, bank_account_number, bank_account_holder_name, bank_branch
+    SELECT id, email, laundry_name, phone_number, address, nearest_city
     FROM laundry 
     WHERE id = ?
   `;
