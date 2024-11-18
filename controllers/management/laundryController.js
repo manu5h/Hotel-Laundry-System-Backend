@@ -143,6 +143,7 @@ const getOrdersByLaundryId = (req, res) => {
           pickup_delivery_rider_id: row.pickup_delivery_rider_id,
           drop_delivery_rider_id: row.drop_delivery_rider_id,
           review: row.review,
+          feedback: row.feedback,
           hotel_details: {
             id: row.hotel_id,
             email: row.hotel_email,

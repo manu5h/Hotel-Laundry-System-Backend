@@ -267,12 +267,12 @@ const declineOrderByHotel = (req, res) => {
 
 const addReview = (req, res) => {
   const { order_id } = req.params;
-  const { review } = req.body;
+  const { review, feedback } = req.body; // Add feedback to the request body
   const hotel_id = req.user.id;
 
   // Validate required fields
-  if (!order_id || review === undefined) {
-    return res.status(400).json({ message: 'Order ID and review are required.' });
+  if (!order_id || review === undefined || feedback === undefined) {
+    return res.status(400).json({ message: 'Order ID, review, and feedback are required.' });
   }
 
   // Check if the order belongs to the hotel making the review
@@ -293,16 +293,16 @@ const addReview = (req, res) => {
 
     const laundry_id = results[0].laundry_id;
 
-    // Update the review for the order
+    // Update the review and feedback for the order
     const updateOrderReviewQuery = `
       UPDATE orders
-      SET review = ?
+      SET review = ?, feedback = ?
       WHERE id = ?
     `;
 
-    db.query(updateOrderReviewQuery, [review, order_id], (err) => {
+    db.query(updateOrderReviewQuery, [review, feedback, order_id], (err) => {
       if (err) {
-        return res.status(500).json({ message: 'Error adding review', error: err });
+        return res.status(500).json({ message: 'Error adding review and feedback', error: err });
       }
 
       // Calculate the new average review for the laundry
@@ -318,7 +318,7 @@ const addReview = (req, res) => {
         }
 
         const averageReview = avgResults[0].averageReview;
-       
+
         if (averageReview === null) {
           return res.status(404).json({ message: 'No valid reviews found to calculate average.' });
         }
@@ -334,18 +334,18 @@ const addReview = (req, res) => {
           if (err) {
             return res.status(500).json({ message: 'Error updating laundry review', error: err });
           }
-        
 
-          // Review added and laundry rating updated successfully
+          // Review and feedback added, laundry rating updated successfully
           res.status(201).json({
-            message: 'Review added successfully, laundry review updated.',
-            averageReview
+            message: 'Review and feedback added successfully, laundry review updated.',
+            averageReview,
           });
         });
       });
     });
   });
 };
+
 
 
 module.exports = {
